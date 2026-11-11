@@ -9,6 +9,15 @@
   --rule: #e3dfd6;
   --accent: #d9480f;
   --accent-wash: #fcebe2;
+  --viz-computing_ai: #2a78d6;
+  --viz-materials_manufacturing: #eb6834;
+  --viz-climate_energy: #1baf7a;
+  --viz-ag_food: #eda100;
+  --viz-education_social: #e87ba4;
+  --viz-robotics_hardware: #6250d6;
+  --viz-health_bio: #e34948;
+  --viz-other: #8c887d;
+  --viz-land: #ebe7de;
   color-scheme: light;
 }
 
@@ -22,6 +31,15 @@
     --rule: #2a2925;
     --accent: #ff7a45;
     --accent-wash: #2a1810;
+    --viz-computing_ai: #3987e5;
+    --viz-materials_manufacturing: #d95926;
+    --viz-climate_energy: #199e70;
+    --viz-ag_food: #c98500;
+    --viz-education_social: #d55181;
+    --viz-robotics_hardware: #9085e9;
+    --viz-health_bio: #e66767;
+    --viz-other: #6f6c64;
+    --viz-land: #1e1e1a;
     color-scheme: dark;
   }
 }
@@ -34,6 +52,15 @@
   --rule: #2a2925;
   --accent: #ff7a45;
   --accent-wash: #2a1810;
+  --viz-computing_ai: #3987e5;
+  --viz-materials_manufacturing: #d95926;
+  --viz-climate_energy: #199e70;
+  --viz-ag_food: #c98500;
+  --viz-education_social: #d55181;
+  --viz-robotics_hardware: #9085e9;
+  --viz-health_bio: #e66767;
+  --viz-other: #6f6c64;
+  --viz-land: #1e1e1a;
   color-scheme: dark;
 }
 

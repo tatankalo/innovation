@@ -125,6 +125,26 @@ async function Landing() {
       </section>
 
       <section className="mt-20">
+        <Link href="/landscape" className="group grid md:grid-cols-[1fr_auto] gap-6 items-end border border-rule hover:border-accent rounded-[2px] p-6 sm:p-10 bg-surface">
+          <div>
+            <p className="label mb-3">Landscape</p>
+            <h2 className="font-serif text-[30px] leading-9 sm:text-[40px] sm:leading-[46px] tracking-[-0.015em] max-w-[640px]">
+              See where NSF invests and where the patents land.
+            </h2>
+            <p className="mt-3 text-ink-2 max-w-[560px]">
+              A map of {num(stats.universities)} universities, {money(stats.award_dollars)} in awards and {num(stats.families)} inventions, by technology sector.
+            </p>
+          </div>
+          <div className="flex items-end gap-1.5 h-20" aria-hidden>
+            {["computing_ai", "materials_manufacturing", "climate_energy", "ag_food", "education_social", "robotics_hardware", "health_bio"].map((k, i) => (
+              <span key={k} className="w-4 rounded-[2px]" style={{ background: `var(--viz-${k})`, height: `${[100, 54, 74, 22, 72, 28, 60][i]}%` }} />
+            ))}
+            <span className="ml-4 text-accent font-medium text-[15px] whitespace-nowrap self-center group-hover:translate-x-1 transition-transform">Open the map →</span>
+          </div>
+        </Link>
+      </section>
+
+      <section className="mt-20">
         <div className="flex items-baseline justify-between border-b border-rule pb-3 mb-2">
           <h2 className="label">Lineage: same people, grant and patent</h2>
           <span className="text-[13px] text-ink-3">Award PI or co-PI appears as an inventor at the same university</span>

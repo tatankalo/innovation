@@ -32,7 +32,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/?t=research,icorps,iucrc,sbir,sttr" className="hover:text-ink hidden sm:inline">NSF awards</Link>
               <Link href="/?l=climate&o=readiness" className="hover:text-ink hidden md:inline">Climate</Link>
               <Link href="/?l=agtech&o=readiness" className="hover:text-ink hidden md:inline">Ag tech</Link>
-              <Link href="/universities" className="hover:text-ink">Universities</Link>
+              <Link href="/landscape" className="hover:text-ink">Landscape</Link>
+              <Link href="/universities" className="hover:text-ink hidden sm:inline">Universities</Link>
               <ThemeToggle />
             </nav>
           </div>
