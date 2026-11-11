@@ -7,7 +7,7 @@ import { LENSES, SECTORS, money, num } from "@/lib/format";
 
 /* ---------- data ---------- */
 
-type Payload = {
+export type Payload = {
   sectors: string[];
   universities: [number, string, string | null, number | null, number | null][];
   cells: [number, number, number, number, number, number][]; // uni, sectorIdx, year, awards, dollars, patents
@@ -24,8 +24,8 @@ const METRICS: { key: Metric; label: string; unit: string }[] = [
 const YEARS = [2021, 2022, 2023, 2024, 2025, 2026];
 
 // Fixed slot order (validated for color-blind separation on both surfaces). Color follows the sector.
-const ORDER = ["computing_ai", "materials_manufacturing", "climate_energy", "ag_food", "education_social", "robotics_hardware", "health_bio", "other"];
-const SHORT: Record<string, string> = {
+export const ORDER = ["computing_ai", "materials_manufacturing", "climate_energy", "ag_food", "education_social", "robotics_hardware", "health_bio", "other"];
+export const SHORT: Record<string, string> = {
   computing_ai: "Computing and AI",
   materials_manufacturing: "Materials",
   climate_energy: "Climate and energy",
@@ -35,7 +35,7 @@ const SHORT: Record<string, string> = {
   health_bio: "Health and biotech",
   other: "Other",
 };
-const color = (sector: string) => `var(--viz-${sector})`;
+export const color = (sector: string) => `var(--viz-${sector})`;
 const fmt = (m: Metric, v: number) => (m === "dollars" ? money(v) : num(v));
 const pick = (m: Metric, a: number, d: number, p: number) => (m === "dollars" ? d : m === "awards" ? a : p);
 
@@ -51,6 +51,12 @@ export default function Landscape() {
   const [yt, setYt] = useState(2026);
   const [active, setActive] = useState<number | null>(null);
   const [pinned, setPinned] = useState(false);
+
+  // Deep link from the home page: /landscape?sector=climate_energy
+  useEffect(() => {
+    const s = new URLSearchParams(window.location.search).get("sector");
+    if (s && ORDER.includes(s)) setSector(s);
+  }, []);
 
   useEffect(() => {
     fetch("/api/landscape")
@@ -337,7 +343,7 @@ function radius(v: number, max: number) {
   return Math.max(2.2, Math.sqrt(v / max) * 30);
 }
 
-function shortName(n: string) {
+export function shortName(n: string) {
   return n
     .replace(/^(The )?Regents of the /i, "")
     .replace(/Pennsylvania State Univ University Park/, "Penn State")

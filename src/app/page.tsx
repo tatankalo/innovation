@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
+import HeroPulse from "@/components/landscape/HeroPulse";
 import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
 import { searchArgs } from "@/lib/searchParams";
@@ -86,7 +87,7 @@ async function Landing() {
   ];
   return (
     <div className="mx-auto max-w-[1120px] px-4 sm:px-8">
-      <section className="pt-16 sm:pt-28 pb-14">
+      <section className="pt-12 sm:pt-20 pb-10">
         <p className="label mb-6">University technology since 2021</p>
         <h1 className="font-serif text-[44px] leading-[48px] sm:text-[68px] sm:leading-[70px] tracking-[-0.02em] max-w-[900px]">
           Find the inventions NSF funded <em className="text-ink-2">before</em> someone else does.
@@ -114,7 +115,9 @@ async function Landing() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 border-t border-rule">
+      <HeroPulse />
+
+      <section className="mt-14 grid grid-cols-2 lg:grid-cols-4 border-t border-rule">
         {figures.map((f, i) => (
           <div key={f.label} className={`py-8 pr-6 ${i % 2 ? "pl-6 border-l border-rule" : ""} ${i === 2 ? "lg:pl-6 lg:border-l border-rule" : ""} ${i > 1 ? "border-t lg:border-t-0 border-rule" : ""}`}>
             <div className={`font-serif text-[40px] sm:text-[52px] leading-none tracking-[-0.02em] tnum ${f.accent ? "text-accent" : ""}`}>{f.n}</div>
@@ -122,26 +125,6 @@ async function Landing() {
             <div className="mt-1 text-[13px] text-ink-3">{f.sub}</div>
           </div>
         ))}
-      </section>
-
-      <section className="mt-20">
-        <Link href="/landscape" className="group grid md:grid-cols-[1fr_auto] gap-6 items-end border border-rule hover:border-accent rounded-[2px] p-6 sm:p-10 bg-surface">
-          <div>
-            <p className="label mb-3">Landscape</p>
-            <h2 className="font-serif text-[30px] leading-9 sm:text-[40px] sm:leading-[46px] tracking-[-0.015em] max-w-[640px]">
-              See where NSF invests and where the patents land.
-            </h2>
-            <p className="mt-3 text-ink-2 max-w-[560px]">
-              A map of {num(stats.universities)} universities, {money(stats.award_dollars)} in awards and {num(stats.families)} inventions, by technology sector.
-            </p>
-          </div>
-          <div className="flex items-end gap-1.5 h-20" aria-hidden>
-            {["computing_ai", "materials_manufacturing", "climate_energy", "ag_food", "education_social", "robotics_hardware", "health_bio"].map((k, i) => (
-              <span key={k} className="w-4 rounded-[2px]" style={{ background: `var(--viz-${k})`, height: `${[100, 54, 74, 22, 72, 28, 60][i]}%` }} />
-            ))}
-            <span className="ml-4 text-accent font-medium text-[15px] whitespace-nowrap self-center group-hover:translate-x-1 transition-transform">Open the map →</span>
-          </div>
-        </Link>
       </section>
 
       <section className="mt-20">
