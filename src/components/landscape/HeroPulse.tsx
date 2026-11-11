@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money, num } from "@/lib/format";
-import { ORDER, SHORT, color, shortName, type Payload } from "./Landscape";
+import { ORDER, SHORT, UniCard, color, shortName, type Payload } from "./Landscape";
 import { useZoomPan, ZoomControls } from "./useZoomPan";
 
 const W = 975;
@@ -41,6 +41,8 @@ export default function HeroPulse() {
   const [ready, setReady] = useState(false);
   const [still, setStill] = useState(false); // prefers-reduced-motion
   const zp = useZoomPan(W, H);
+  const [active, setActive] = useState<number | null>(null);
+  const [pinned, setPinned] = useState(false);
 
   useEffect(() => {
     setStill(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -56,20 +58,23 @@ export default function HeroPulse() {
   }, []);
 
   useEffect(() => {
-    if (!data || paused || still || zp.zoomed) return; // hold the tour while someone explores the map
+    if (!data || paused || still || zp.zoomed || pinned) return; // hold the tour while someone explores the map
     const id = setInterval(() => setStep((s) => (s + 1) % TOUR.length), STEP_MS);
     return () => clearInterval(id);
-  }, [data, paused, still, zp.zoomed]);
+  }, [data, paused, still, zp.zoomed, pinned]);
 
   const model = useMemo(() => {
     if (!data) return null;
-    const unis = new Map<number, { id: number; name: string; x: number | null; y: number | null; by: Record<string, number>; total: number }>();
-    for (const [id, name, , x, y] of data.universities) unis.set(id, { id, name, x, y, by: {}, total: 0 });
-    for (const [u, s, , , d] of data.cells) {
+    const unis = new Map<number, { id: number; name: string; x: number | null; y: number | null; state: string | null; by: Record<string, [number, number, number]>; total: number }>();
+    for (const [id, name, state, x, y] of data.universities) unis.set(id, { id, name, state, x, y, by: {}, total: 0 });
+    for (const [u, s, , a, d, p] of data.cells) {
       const rec = unis.get(u);
       if (!rec) continue;
       const k = data.sectors[s];
-      rec.by[k] = (rec.by[k] ?? 0) + d;
+      const cur = (rec.by[k] ??= [0, 0, 0]);
+      cur[0] += a;
+      cur[1] += d;
+      cur[2] += p;
       rec.total += d;
     }
     const nat: Record<string, [number, number, number]> = {};
@@ -82,7 +87,7 @@ export default function HeroPulse() {
     const list = [...unis.values()].filter((u) => u.x != null && u.total > 0).map((u) => {
       let top = "other";
       let best = -1;
-      for (const k of ORDER) if ((u.by[k] ?? 0) > best) { best = u.by[k] ?? 0; top = k; }
+      for (const k of ORDER) if ((u.by[k]?.[1] ?? 0) > best) { best = u.by[k]?.[1] ?? 0; top = k; }
       return { ...u, dominant: top };
     });
     // Stable draw order (largest overall first) so marks never re-stack mid-animation.
@@ -93,7 +98,7 @@ export default function HeroPulse() {
   const sector = TOUR[step];
   const frame = useMemo(() => {
     if (!model) return null;
-    const val = (u: (typeof model.list)[number]) => (sector ? u.by[sector] ?? 0 : u.total);
+    const val = (u: (typeof model.list)[number]) => (sector ? u.by[sector]?.[1] ?? 0 : u.total);
     const max = Math.max(1, ...model.list.map(val));
     const leaders = [...model.list].sort((a, b) => val(b) - val(a)).slice(0, 3);
     const tot: [number, number, number] = [0, 0, 0];
@@ -104,6 +109,14 @@ export default function HeroPulse() {
     return { val, max, leaders, tot };
   }, [model, sector]);
 
+  const activeU = active != null ? model?.list.find((u) => u.id === active) ?? null : null;
+  const card = (() => {
+    if (!activeU) return null;
+    const sx = activeU.x! * zp.k + zp.x;
+    const sy = activeU.y! * zp.k + zp.y;
+    return sx >= 0 && sx <= W && sy >= 0 && sy <= H ? { u: activeU, sx, sy } : null;
+  })();
+
   const dollars = useRolling(frame?.tot[1] ?? 0);
   const awards = useRolling(frame?.tot[0] ?? 0);
   const patents = useRolling(frame?.tot[2] ?? 0);
@@ -113,7 +126,10 @@ export default function HeroPulse() {
     <section
       className="mt-4 border border-rule rounded-[2px] bg-surface overflow-hidden"
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={() => {
+        setPaused(false);
+        if (!pinned) setActive(null);
+      }}
       aria-label="Animated map of NSF funding by technology sector"
     >
       <div className="grid lg:grid-cols-[340px_1fr]">
@@ -171,8 +187,8 @@ export default function HeroPulse() {
                 >
                   <span className="relative block w-full h-[3px] rounded-full bg-rule overflow-hidden group-hover:h-[5px] transition-[height]">
                     <span
-                      key={i === step ? `on-${step}-${paused}-${zp.zoomed}` : "off"}
-                      className={`absolute inset-y-0 left-0 rounded-full ${i === step && !paused && !still && !zp.zoomed ? "pulse-fill" : ""}`}
+                      key={i === step ? `on-${step}-${paused}-${zp.zoomed}-${pinned}` : "off"}
+                      className={`absolute inset-y-0 left-0 rounded-full ${i === step && !paused && !still && !zp.zoomed && !pinned ? "pulse-fill" : ""}`}
                       style={{ background: k ? color(k) : "var(--ink)", width: i === step ? "100%" : "0%" }}
                     />
                   </span>
@@ -210,10 +226,17 @@ export default function HeroPulse() {
                     cy={u.y!}
                     r={ready && v > 0 ? rad(v, frame!.max) * zp.markScale : 0}
                     fill={color(sector ?? u.dominant)}
-                    fillOpacity="0.92"
-                    stroke="var(--paper)"
-                    strokeWidth="1.25"
+                    fillOpacity={active == null || active === u.id ? 0.92 : 0.4}
+                    onMouseEnter={() => !pinned && !zp.dragging && v > 0 && setActive(u.id)}
+                    onClick={() => {
+                      if (zp.moved.current) return; // that press was a drag, not a click
+                      setActive(u.id);
+                      setPinned(true);
+                    }}
+                    stroke={active === u.id ? "var(--ink)" : "var(--paper)"}
+                    strokeWidth={active === u.id ? 2 : 1.25}
                     vectorEffect="non-scaling-stroke"
+                    cursor="pointer"
                     style={{ transition: zp.dragging ? "none" : zp.zoomed ? "r 200ms ease-out, fill 700ms ease-out" : still || step > 0 ? ease : ease.replace("r 1100ms cubic-bezier(.2,.8,.2,1)", `r 1100ms cubic-bezier(.2,.8,.2,1) ${Math.min(i * 6, 900)}ms`) }}
                   />
                 );
@@ -233,6 +256,32 @@ export default function HeroPulse() {
             </g>
           </svg>
           <ZoomControls zp={zp} />
+          {card && (
+            <div
+              className="absolute z-10 w-[250px] bg-surface border border-rule rounded-[4px] p-4 shadow-[0_8px_30px_rgba(0,0,0,0.14)] text-[13px]"
+              style={{
+                left: `${(card.sx / W) * 100}%`,
+                top: `${(card.sy / H) * 100}%`,
+                transform: `translate(${card.sx > W * 0.6 ? "calc(-100% - 14px)" : "14px"}, ${card.sy > H * 0.5 ? "-100%" : "0"})`,
+                pointerEvents: pinned ? "auto" : "none",
+              }}
+            >
+              <div className="flex justify-between gap-3">
+                <div className="font-serif text-[18px] leading-[22px]">{card.u.name}</div>
+                {pinned && (
+                  <button aria-label="Close" onClick={() => { setPinned(false); setActive(null); }} className="text-ink-3 hover:text-ink leading-none text-[18px]">×</button>
+                )}
+              </div>
+              <UniCard row={{ ...card.u, value: 0 }} metric="dollars" sector={sector} />
+              {pinned ? (
+                <Link href={`/university/${card.u.id}`} className="mt-3 inline-block font-medium text-accent hover:underline underline-offset-4">
+                  Open university page →
+                </Link>
+              ) : (
+                <p className="mt-2 text-[12px] text-ink-3">Click to pin</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>

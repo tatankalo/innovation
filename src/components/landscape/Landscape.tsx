@@ -363,7 +363,7 @@ export function shortName(n: string) {
     .replace(/Institute of Technology/g, "Tech");
 }
 
-type Row = { id: number; name: string; state: string | null; x: number | null; y: number | null; value: number; dominant: string; by: Record<string, [number, number, number]> };
+export type Row = { id: number; name: string; state: string | null; x: number | null; y: number | null; value: number; dominant: string; by: Record<string, [number, number, number]> };
 
 /** Label the biggest marks, skipping any label that would land on one already placed. */
 function onScreen(x: number, y: number) {
@@ -389,7 +389,7 @@ function labelLeaders(rows: Row[], max: number, k = 1, markScale = 1) {
   return out;
 }
 
-function UniCard({ row, metric, sector }: { row: Row; metric: Metric; sector: string | null }) {
+export function UniCard({ row, metric, sector }: { row: Row; metric: Metric; sector: string | null }) {
   const tot: [number, number, number] = [0, 0, 0];
   for (const k of sector ? [sector] : ORDER) {
     const t = row.by[k];
