@@ -138,3 +138,21 @@ mark {
 @media (prefers-reduced-motion: reduce) {
   .pulse-in, .pulse-fill { animation: none; }
 }
+
+/* Side sheet */
+@keyframes sheet-in {
+  from { transform: translateX(32px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes sheet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.sheet-panel { animation: sheet-in 220ms cubic-bezier(.2,.8,.2,1) both; }
+.sheet-backdrop { animation: sheet-fade 220ms ease-out both; }
+[data-sheet] [data-back-link] { display: none; }
+[data-sheet] [data-back-link] + header { margin-top: 0; }
+[data-sheet] .\@container { padding-top: 2rem; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet-panel, .sheet-backdrop { animation: none; }
+}

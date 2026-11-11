@@ -59,8 +59,8 @@ export default async function PatentPage({ params }: { params: Promise<{ id: str
   const lineageMatched = new Set(d.lineage.flatMap((l) => l.inventors));
 
   return (
-    <article className="mx-auto max-w-[1120px] px-4 sm:px-8 pt-12">
-      <Link href="/" className="text-[14px] text-ink-3 hover:text-ink">← Search</Link>
+    <article className="@container mx-auto max-w-[1120px] px-4 sm:px-8 pt-12">
+      <Link data-back-link href="/" className="text-[14px] text-ink-3 hover:text-ink">← Search</Link>
       <header className="mt-8 pb-10 border-b border-rule">
         <div className="flex items-center gap-4 flex-wrap mb-5">
           <ProgramTag program="patent" />
@@ -85,7 +85,7 @@ export default async function PatentPage({ params }: { params: Promise<{ id: str
         </div>
       </header>
 
-      <div className="grid lg:grid-cols-[1fr_300px] gap-12 lg:gap-16 pt-10">
+      <div className="grid @4xl:grid-cols-[1fr_300px] gap-12 @4xl:gap-16 pt-10">
         <div className="min-w-0">
           <SectionLabel>Abstract</SectionLabel>
           <p className="text-[18px] leading-[30px] max-w-[68ch]">{abstract ? decode(abstract) : "No abstract on file."}</p>

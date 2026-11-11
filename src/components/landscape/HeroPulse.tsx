@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money, num } from "@/lib/format";
 import { ORDER, SHORT, UniCard, color, shortName, type Payload } from "./Landscape";
@@ -41,6 +42,7 @@ export default function HeroPulse() {
   const [ready, setReady] = useState(false);
   const [still, setStill] = useState(false); // prefers-reduced-motion
   const zp = useZoomPan(W, H);
+  const router = useRouter();
   const [active, setActive] = useState<number | null>(null);
   const [pinned, setPinned] = useState(false);
 
@@ -230,8 +232,7 @@ export default function HeroPulse() {
                     onMouseEnter={() => !pinned && !zp.dragging && v > 0 && setActive(u.id)}
                     onClick={() => {
                       if (zp.moved.current) return; // that press was a drag, not a click
-                      setActive(u.id);
-                      setPinned(true);
+                      router.push(`/university/${u.id}`, { scroll: false }); // opens in the side sheet
                     }}
                     stroke={active === u.id ? "var(--ink)" : "var(--paper)"}
                     strokeWidth={active === u.id ? 2 : 1.25}
@@ -278,7 +279,7 @@ export default function HeroPulse() {
                   Open university page →
                 </Link>
               ) : (
-                <p className="mt-2 text-[12px] text-ink-3">Click to pin</p>
+                <p className="mt-2 text-[12px] text-ink-3">Click to open</p>
               )}
             </div>
           )}

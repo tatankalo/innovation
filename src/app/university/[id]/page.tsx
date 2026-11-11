@@ -43,8 +43,8 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
   const maxYear = Math.max(1, ...years.map((y) => p.years[y] ?? 0));
 
   return (
-    <div className="mx-auto max-w-[1120px] px-4 sm:px-8 pt-12">
-      <Link href="/universities" className="text-[14px] text-ink-3 hover:text-ink">← Universities</Link>
+    <div className="@container mx-auto max-w-[1120px] px-4 sm:px-8 pt-12">
+      <Link data-back-link href="/universities" className="text-[14px] text-ink-3 hover:text-ink">← Universities</Link>
       <header className="mt-8 pb-10 border-b border-rule">
         <p className="label mb-4">University{u.state ? ` · ${u.state}` : ""}</p>
         <h1 className="font-serif text-[40px] leading-[46px] sm:text-[56px] sm:leading-[60px] tracking-[-0.02em] max-w-[900px]">{u.name}</h1>
@@ -53,14 +53,14 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
         </div>
       </header>
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 border-b border-rule">
+      <section className="grid grid-cols-2 @4xl:grid-cols-4 border-b border-rule">
         <Figure n={num(p.patent_families)} label="Patent families" sub={systemOnly ? "Matched at system level" : `${num(p.granted_families)} granted`} />
         <Figure n={num(awardsTotal)} label="NSF awards" sub="Research, I-Corps, IUCRC" border />
         <Figure n={money(p.award_dollars)} label="NSF funding" sub="Total award amounts" border topBorder />
         <Figure n={num(p.lineage_links)} label="Lineage links" sub="Award team on a patent" border topBorder accent />
       </section>
 
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-14">
+      <div className="grid @4xl:grid-cols-2 gap-12 @4xl:gap-16 mt-14">
         <section>
           <SectionLabel>Awards by program</SectionLabel>
           <ul className="space-y-3">
@@ -139,7 +139,7 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
         </section>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 mt-16">
+      <div className="grid @4xl:grid-cols-2 gap-12 @4xl:gap-16 mt-16">
         <section>
           <SectionLabel right={<Link href={`/?u=${u.id}&t=patent`} className="hover:text-ink">All patents →</Link>}>Recent patents</SectionLabel>
           <ul>
@@ -171,7 +171,7 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
 
 function Figure({ n, label, sub, border, topBorder, accent }: { n: string; label: string; sub: string; border?: boolean; topBorder?: boolean; accent?: boolean }) {
   return (
-    <div className={`py-8 pr-6 ${border ? "pl-6 border-l border-rule" : ""} ${topBorder ? "border-t lg:border-t-0 border-rule" : ""} [&:nth-child(3)]:pl-0 [&:nth-child(3)]:border-l-0 lg:[&:nth-child(3)]:pl-6 lg:[&:nth-child(3)]:border-l`}>
+    <div className={`py-8 pr-6 ${border ? "pl-6 border-l border-rule" : ""} ${topBorder ? "border-t @4xl:border-t-0 border-rule" : ""} [&:nth-child(3)]:pl-0 [&:nth-child(3)]:border-l-0 @4xl:[&:nth-child(3)]:pl-6 @4xl:[&:nth-child(3)]:border-l`}>
       <div className={`font-serif text-[40px] sm:text-[48px] leading-none tracking-[-0.02em] tnum ${accent ? "text-accent" : ""}`}>{n}</div>
       <div className="mt-3 text-[15px] font-medium">{label}</div>
       <div className="mt-1 text-[13px] text-ink-3">{sub}</div>

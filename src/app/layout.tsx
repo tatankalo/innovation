@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 const themeScript = `try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}`;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children, modal }: { children: React.ReactNode; modal: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
@@ -39,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <main className="flex-1">{children}</main>
+        {modal}
         <footer className="border-t border-rule mt-24">
           <div className="mx-auto max-w-[1120px] px-4 sm:px-8 py-8 flex flex-col sm:flex-row gap-3 justify-between text-[13px] text-ink-3">
             <p>Patent data: Google Patents Public Datasets (IFI CLAIMS), CC BY 4.0. Awards: NSF.</p>

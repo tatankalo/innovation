@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { hierarchy, treemap } from "d3-hierarchy";
 import { useEffect, useMemo, useState } from "react";
 import { LENSES, SECTORS, money, num } from "@/lib/format";
@@ -53,6 +54,7 @@ export default function Landscape() {
   const [active, setActive] = useState<number | null>(null);
   const [pinned, setPinned] = useState(false);
   const zp = useZoomPan(W, H);
+  const router = useRouter();
 
   // Deep link from the home page: /landscape?sector=climate_energy
   useEffect(() => {
@@ -231,8 +233,7 @@ export default function Landscape() {
                     onMouseEnter={() => !pinned && !zp.dragging && setActive(r.id)}
                     onClick={() => {
                       if (zp.moved.current) return; // that press was a drag, not a click
-                      setActive(r.id);
-                      setPinned(true);
+                      router.push(`/university/${r.id}`, { scroll: false }); // opens in the side sheet
                     }}
                   />
                 ))}
@@ -277,7 +278,7 @@ export default function Landscape() {
           <p className="mt-3 text-[12px] leading-5 text-ink-3">
             Circle area shows {m.key === "dollars" ? "NSF dollars" : m.key === "awards" ? "the number of NSF awards" : "the number of patented inventions"}
             {sector ? ` in ${SHORT[sector].toLowerCase()}` : ""}, {yf} to {yt}. Color shows {sector ? "the selected sector" : "each university's largest sector"}.
-            Click a circle to pin it. Pinch, double-click or use the buttons to zoom, and drag to move.{offMap > 0 ? ` ${offMap} universities have no map coordinates and appear only in the list.` : ""} Patents shared across a
+            Click a circle to open that university. Pinch, double-click or use the buttons to zoom, and drag to move.{offMap > 0 ? ` ${offMap} universities have no map coordinates and appear only in the list.` : ""} Patents shared across a
             university system are not placed on a single campus.
           </p>
         </div>

@@ -283,7 +283,7 @@ async function Results({ sp }: { sp: SP }) {
                       <ReadinessBadge value={h.readiness} />
                     </span>
                   </div>
-                  <Link href={href} className="group">
+                  <Link href={href} data-record scroll={false} className="group">
                     <h3 className="font-serif text-[22px] leading-7 group-hover:text-accent">
                       <Highlight text={cleanTitle(h.title)} q={q} />
                     </h3>
