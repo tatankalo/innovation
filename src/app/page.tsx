@@ -4,6 +4,7 @@ import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
 import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
+import { searchArgs } from "@/lib/searchParams";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -161,30 +162,13 @@ async function Landing() {
 }
 
 async function Results({ sp }: { sp: SP }) {
-  const q = one(sp.q) ?? "";
-  const t = (one(sp.t) ?? "").split(",").filter(Boolean);
-  const u = one(sp.u);
-  const s = one(sp.s);
-  const yf = one(sp.yf);
-  const yt = one(sp.yt);
-  const lens = one(sp.l) && LENSES[one(sp.l)!] ? one(sp.l)! : null;
-  const sec = one(sp.sec);
-  const sub = lens ? one(sp.sub) : undefined;
-  const sort = one(sp.o) ?? "relevance";
+  const args = searchArgs((k) => one(sp[k]));
+  const { q, lens, sort } = args;
   const page = Math.max(1, Number(one(sp.p) ?? 1));
   const PER = 25;
-  const args = {
-    q,
-    kinds: t.length ? t : null,
-    university: u ? Number(u) : null,
-    st: s || null,
-    year_from: yf ? Number(yf) : null,
-    year_to: yt ? Number(yt) : null,
-    lens,
-    sector: sec || null,
-    sub: sub || null,
-    sort,
-  };
+  const exportQs = new URLSearchParams(
+    Object.entries(sp).flatMap(([k, v]) => (v === undefined || k === "p" ? [] : [[k, String(one(v))]]))
+  ).toString();
   const t0 = Date.now();
   const [res, unis] = await Promise.all([
     rpc<{ total: number; relaxed: boolean; hits: Hit[]; facets: Parameters<typeof Filters>[0]["facets"] }>("search_v2", {
@@ -250,7 +234,7 @@ async function Results({ sp }: { sp: SP }) {
               <p className="mt-2 text-ink-2">Try fewer words or remove a filter. Search matches title and abstract text.</p>
             </div>
           )}
-          <div className="flex items-center gap-5 pb-3 text-[13px]">
+          <div className="flex items-center gap-5 pb-3 text-[13px] flex-wrap">
             <span className="label">Sort</span>
             {[["relevance", q ? "Relevance" : "Featured"], ["readiness", "Readiness"], ["newest", "Newest"]].map(([k, label]) => (
               <Link
@@ -262,6 +246,18 @@ async function Results({ sp }: { sp: SP }) {
                 {label}
               </Link>
             ))}
+            {total > 0 && (
+              <a
+                href={`/api/export?${exportQs}`}
+                download
+                className="ml-auto inline-flex items-center gap-2 h-8 px-3 rounded-[2px] border border-rule hover:border-ink font-medium text-ink"
+                title={total > 5000 ? "Exports the first 5,000 results in the current sort order" : "Exports every result with the current filters"}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden><path d="M6 1v7M3 5.5 6 8.5l3-3M1.5 10.5h9" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+                Download CSV
+                <span className="font-mono text-[12px] text-ink-3 tnum">{num(Math.min(total, 5000))}</span>
+              </a>
+            )}
           </div>
           <ol className="border-t border-rule">
             {hits.map((h) => {
