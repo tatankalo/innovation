@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { money, num } from "@/lib/format";
 import { ORDER, SHORT, color, shortName, type Payload } from "./Landscape";
+import { useZoomPan, ZoomControls } from "./useZoomPan";
 
 const W = 975;
 const H = 610;
@@ -39,6 +40,7 @@ export default function HeroPulse() {
   const [paused, setPaused] = useState(false);
   const [ready, setReady] = useState(false);
   const [still, setStill] = useState(false); // prefers-reduced-motion
+  const zp = useZoomPan(W, H);
 
   useEffect(() => {
     setStill(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -54,10 +56,10 @@ export default function HeroPulse() {
   }, []);
 
   useEffect(() => {
-    if (!data || paused || still) return;
+    if (!data || paused || still || zp.zoomed) return; // hold the tour while someone explores the map
     const id = setInterval(() => setStep((s) => (s + 1) % TOUR.length), STEP_MS);
     return () => clearInterval(id);
-  }, [data, paused, still]);
+  }, [data, paused, still, zp.zoomed]);
 
   const model = useMemo(() => {
     if (!data) return null;
@@ -169,8 +171,8 @@ export default function HeroPulse() {
                 >
                   <span className="relative block w-full h-[3px] rounded-full bg-rule overflow-hidden group-hover:h-[5px] transition-[height]">
                     <span
-                      key={i === step ? `on-${step}-${paused}` : "off"}
-                      className={`absolute inset-y-0 left-0 rounded-full ${i === step && !paused && !still ? "pulse-fill" : ""}`}
+                      key={i === step ? `on-${step}-${paused}-${zp.zoomed}` : "off"}
+                      className={`absolute inset-y-0 left-0 rounded-full ${i === step && !paused && !still && !zp.zoomed ? "pulse-fill" : ""}`}
                       style={{ background: k ? color(k) : "var(--ink)", width: i === step ? "100%" : "0%" }}
                     />
                   </span>
@@ -184,17 +186,18 @@ export default function HeroPulse() {
         </div>
 
         <div className="relative border-t lg:border-t-0 lg:border-l border-rule bg-paper">
-          <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" role="img" aria-label={`Universities sized by NSF dollars${sector ? ` in ${SHORT[sector]}` : ""}`}>
+          <svg ref={zp.ref} style={zp.svgStyle} viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" role="img" aria-label={`Universities sized by NSF dollars${sector ? ` in ${SHORT[sector]}` : ""}`}>
             <defs>
               <filter id="pulse-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="10" />
+                <feGaussianBlur stdDeviation={10 / zp.k} />
               </filter>
             </defs>
+            <g transform={zp.transform}>
             {data && <path d={data.nation} fill="var(--viz-land)" />}
-            {data && <path d={data.borders} fill="none" stroke="var(--paper)" strokeWidth="1" />}
+            {data && <path d={data.borders} fill="none" stroke="var(--paper)" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
             <g filter="url(#pulse-glow)" opacity="0.5">
               {model?.list.slice(0, 110).map((u) => (
-                <circle key={u.id} cx={u.x!} cy={u.y!} r={ready && frame ? rad(frame.val(u), frame.max) * 1.8 : 0} fill={color(sector ?? u.dominant)} style={{ transition: ease }} />
+                <circle key={u.id} cx={u.x!} cy={u.y!} r={ready && frame ? rad(frame.val(u), frame.max) * 1.8 * zp.markScale : 0} fill={color(sector ?? u.dominant)} style={{ transition: ease }} />
               ))}
             </g>
             <g>
@@ -205,28 +208,31 @@ export default function HeroPulse() {
                     key={u.id}
                     cx={u.x!}
                     cy={u.y!}
-                    r={ready && v > 0 ? rad(v, frame!.max) : 0}
+                    r={ready && v > 0 ? rad(v, frame!.max) * zp.markScale : 0}
                     fill={color(sector ?? u.dominant)}
                     fillOpacity="0.92"
                     stroke="var(--paper)"
                     strokeWidth="1.25"
-                    style={{ transition: ease, transitionDelay: still || step > 0 ? "0ms" : `${Math.min(i * 6, 900)}ms` }}
+                    vectorEffect="non-scaling-stroke"
+                    style={{ transition: zp.dragging ? "none" : zp.zoomed ? "r 200ms ease-out, fill 700ms ease-out" : ease, transitionDelay: still || step > 0 ? "0ms" : `${Math.min(i * 6, 900)}ms` }}
                   />
                 );
               })}
             </g>
             <g key={step} className="pulse-in hidden sm:block" style={{ pointerEvents: "none" }}>
               {frame?.leaders.map((u) => {
-                const r = rad(frame.val(u), frame.max);
+                const r = rad(frame.val(u), frame.max) * zp.markScale;
                 const right = u.x! < W * 0.7;
                 return (
-                  <text key={u.id} x={right ? u.x! + r + 6 : u.x! - r - 6} y={u.y! + 5} textAnchor={right ? "start" : "end"} fontSize="15" fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth="4" paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
+                  <text key={u.id} x={right ? u.x! + r + 6 / zp.k : u.x! - r - 6 / zp.k} y={u.y! + 5 / zp.k} textAnchor={right ? "start" : "end"} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
                     {shortName(u.name)}
                   </text>
                 );
               })}
             </g>
+            </g>
           </svg>
+          <ZoomControls zp={zp} />
         </div>
       </div>
     </section>

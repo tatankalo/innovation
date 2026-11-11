@@ -4,6 +4,7 @@ import Link from "next/link";
 import { hierarchy, treemap } from "d3-hierarchy";
 import { useEffect, useMemo, useState } from "react";
 import { LENSES, SECTORS, money, num } from "@/lib/format";
+import { useZoomPan, ZoomControls } from "./useZoomPan";
 
 /* ---------- data ---------- */
 
@@ -51,6 +52,7 @@ export default function Landscape() {
   const [yt, setYt] = useState(2026);
   const [active, setActive] = useState<number | null>(null);
   const [pinned, setPinned] = useState(false);
+  const zp = useZoomPan(W, H);
 
   // Deep link from the home page: /landscape?sector=climate_energy
   useEffect(() => {
@@ -197,18 +199,19 @@ export default function Landscape() {
       <section className="grid lg:grid-cols-[1fr_280px] gap-8 lg:gap-10 items-start">
         <div>
           <div className="relative" onMouseLeave={() => !pinned && setActive(null)}>
-            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" role="img" aria-label={`Map of US universities sized by ${m.label}`}>
+            <svg ref={zp.ref} style={zp.svgStyle} viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" role="img" aria-label={`Map of US universities sized by ${m.label}`}>
               <defs>
                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="9" />
+                  <feGaussianBlur stdDeviation={9 / zp.k} />
                 </filter>
               </defs>
+              <g transform={zp.transform}>
               {data && <path d={data.nation} fill="var(--viz-land)" />}
-              {data && <path d={data.borders} fill="none" stroke="var(--paper)" strokeWidth="1" />}
+              {data && <path d={data.borders} fill="none" stroke="var(--paper)" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
               {/* soft heat under the marks */}
               <g filter="url(#glow)" opacity="0.42" style={{ pointerEvents: "none" }}>
                 {view?.rows.filter((r) => r.x != null).slice(0, 120).map((r) => (
-                  <circle key={r.id} cx={r.x!} cy={r.y!} r={radius(r.value, view.max) * 1.7} fill={color(r.dominant)} style={{ transition: "r 400ms ease-out, fill 400ms ease-out" }} />
+                  <circle key={r.id} cx={r.x!} cy={r.y!} r={radius(r.value, view.max) * 1.7 * zp.markScale} fill={color(r.dominant)} style={{ transition: "r 400ms ease-out, fill 400ms ease-out" }} />
                 ))}
               </g>
               {/* marks: largest first so small ones stay reachable; surface ring separates overlaps */}
@@ -218,14 +221,16 @@ export default function Landscape() {
                     key={r.id}
                     cx={r.x!}
                     cy={r.y!}
-                    r={radius(r.value, view.max)}
+                    r={radius(r.value, view.max) * zp.markScale}
                     fill={color(r.dominant)}
                     fillOpacity={active == null || active === r.id ? 0.92 : 0.35}
                     stroke={active === r.id ? "var(--ink)" : "var(--paper)"}
                     strokeWidth={active === r.id ? 2 : 1.25}
-                    style={{ transition: "r 400ms ease-out, fill 400ms ease-out, fill-opacity 150ms", cursor: "pointer" }}
-                    onMouseEnter={() => !pinned && setActive(r.id)}
+                    vectorEffect="non-scaling-stroke"
+                    style={{ transition: zp.dragging ? "none" : "r 250ms ease-out, fill 400ms ease-out, fill-opacity 150ms", cursor: "pointer" }}
+                    onMouseEnter={() => !pinned && !zp.dragging && setActive(r.id)}
                     onClick={() => {
+                      if (zp.moved.current) return; // that press was a drag, not a click
                       setActive(r.id);
                       setPinned(true);
                     }}
@@ -234,21 +239,23 @@ export default function Landscape() {
               </g>
               {/* direct labels for the leaders only */}
               <g className="hidden sm:block" style={{ pointerEvents: "none" }}>
-                {view && labelLeaders(view.rows, view.max).map((r) => (
-                  <text key={r.id} x={r.lx} y={r.ly} textAnchor={r.anchor} fontSize="15" fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth="4" paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
+                {view && labelLeaders(view.rows, view.max, zp.k, zp.markScale).map((r) => (
+                  <text key={r.id} x={r.lx} y={r.ly} textAnchor={r.anchor} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
                     {shortName(r.name)}
                   </text>
                 ))}
               </g>
+              </g>
             </svg>
+            <ZoomControls zp={zp} />
 
-            {activeRow && activeRow.x != null && (
+            {activeRow && activeRow.x != null && onScreen(activeRow.x * zp.k + zp.x, activeRow.y! * zp.k + zp.y) && (
               <div
                 className="absolute z-10 w-[260px] bg-surface border border-rule rounded-[4px] p-4 shadow-[0_8px_30px_rgba(0,0,0,0.12)] text-[13px]"
                 style={{
-                  left: `${(activeRow.x / W) * 100}%`,
-                  top: `${(activeRow.y! / H) * 100}%`,
-                  transform: `translate(${activeRow.x > W * 0.62 ? "calc(-100% - 14px)" : "14px"}, ${activeRow.y! > H * 0.55 ? "-100%" : "0"})`,
+                  left: `${((activeRow.x * zp.k + zp.x) / W) * 100}%`,
+                  top: `${((activeRow.y! * zp.k + zp.y) / H) * 100}%`,
+                  transform: `translate(${activeRow.x * zp.k + zp.x > W * 0.62 ? "calc(-100% - 14px)" : "14px"}, ${activeRow.y! * zp.k + zp.y > H * 0.55 ? "-100%" : "0"})`,
                   pointerEvents: pinned ? "auto" : "none",
                 }}
               >
@@ -270,7 +277,7 @@ export default function Landscape() {
           <p className="mt-3 text-[12px] leading-5 text-ink-3">
             Circle area shows {m.key === "dollars" ? "NSF dollars" : m.key === "awards" ? "the number of NSF awards" : "the number of patented inventions"}
             {sector ? ` in ${SHORT[sector].toLowerCase()}` : ""}, {yf} to {yt}. Color shows {sector ? "the selected sector" : "each university's largest sector"}.
-            Click a circle to pin it.{offMap > 0 ? ` ${offMap} universities have no map coordinates and appear only in the list.` : ""} Patents shared across a
+            Click a circle to pin it. Pinch, double-click or use the buttons to zoom, and drag to move.{offMap > 0 ? ` ${offMap} universities have no map coordinates and appear only in the list.` : ""} Patents shared across a
             university system are not placed on a single campus.
           </p>
         </div>
@@ -359,19 +366,23 @@ export function shortName(n: string) {
 type Row = { id: number; name: string; state: string | null; x: number | null; y: number | null; value: number; dominant: string; by: Record<string, [number, number, number]> };
 
 /** Label the biggest marks, skipping any label that would land on one already placed. */
-function labelLeaders(rows: Row[], max: number) {
+function onScreen(x: number, y: number) {
+  return x >= 0 && x <= W && y >= 0 && y <= H;
+}
+
+function labelLeaders(rows: Row[], max: number, k = 1, markScale = 1) {
   const placed: { x: number; y: number; w: number }[] = [];
   const out: (Row & { lx: number; ly: number; anchor: "start" | "end" })[] = [];
   for (const r of rows) {
-    if (out.length >= 6) break;
+    if (out.length >= (k > 2.5 ? 14 : k > 1.5 ? 10 : 6)) break;
     if (r.x == null || r.y == null) continue;
-    const rad = radius(r.value, max);
+    const rad = radius(r.value, max) * markScale;
     const right = r.x < W * 0.72;
-    const lx = right ? r.x + rad + 5 : r.x - rad - 5;
-    const ly = r.y + 4;
-    const w = shortName(r.name).length * 8.2;
+    const lx = right ? r.x + rad + 5 / k : r.x - rad - 5 / k;
+    const ly = r.y + 4 / k;
+    const w = (shortName(r.name).length * 8.2) / k;
     const x0 = right ? lx : lx - w;
-    if (placed.some((p) => Math.abs(p.y - ly) < 19 && x0 < p.x + p.w && p.x < x0 + w)) continue;
+    if (placed.some((p) => Math.abs(p.y - ly) < 19 / k && x0 < p.x + p.w && p.x < x0 + w)) continue;
     placed.push({ x: x0, y: ly, w });
     out.push({ ...r, lx, ly, anchor: right ? "start" : "end" });
   }
