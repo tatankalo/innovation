@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rpc } from "@/lib/supabase";
 import { cleanTitle, date, inventorName, money, num, PROGRAMS } from "@/lib/format";
-import { Meta, ProgramTag, SectionLabel } from "@/components/ui";
+import { Email, Meta, ProgramTag, SectionLabel } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ type Profile = {
   cpc_classes: { code: string; n: number }[];
   years: Record<string, number>;
   recent_patents: { family_id: string; rep_number: string; title: string; first_pub: string; has_grant: boolean; inventors: string[]; exact: boolean }[];
-  recent_awards: { id: string; program: string; title: string; pi_name: string; start_date: string; amount: number }[];
+  recent_awards: { id: string; program: string; title: string; pi_name: string; pi_email?: string | null; start_date: string; amount: number }[];
   top_inventors: { name: string; n: number }[];
 };
 
@@ -159,7 +159,7 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
               <li key={r.id} className="py-4 border-b border-rule first:pt-0">
                 <Meta>{PROGRAMS[r.program]?.label} · {date(r.start_date)} · {money(r.amount)}</Meta>
                 <Link href={`/award/${r.id}`} className="block mt-1 font-serif text-[19px] leading-6 hover:text-accent">{cleanTitle(r.title)}</Link>
-                <p className="mt-1 text-[13px] text-ink-3">PI {r.pi_name}</p>
+                <p className="mt-1 text-[13px] text-ink-3">PI {r.pi_name} <Email address={r.pi_email} className="ml-1" /></p>
               </li>
             ))}
           </ul>

@@ -108,6 +108,15 @@ export function ReadinessBadge({ value, showLabel = true }: { value?: number | n
   );
 }
 
+export function Email({ address, className = "" }: { address?: string | null; className?: string }) {
+  if (!address) return null;
+  return (
+    <a href={`mailto:${address}`} className={`font-mono text-[12px] text-accent hover:underline underline-offset-4 break-all ${className}`}>
+      {address}
+    </a>
+  );
+}
+
 export function TopicChip({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center h-5 px-1.5 rounded-[2px] border border-rule text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-2">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { patentAbstract, rpc } from "@/lib/supabase";
 import { cleanTitle, date, decode, googlePatentUrl, inventorName, LENSES, money, pubLabel, SECTORS } from "@/lib/format";
-import { ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
+import { Email, ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,7 @@ type Detail = {
     program: string;
     title: string;
     pi: string;
+    pi_email?: string | null;
     start: string;
     amount: number;
     persons: string[];
@@ -112,6 +113,11 @@ export default async function PatentPage({ params }: { params: Promise<{ id: str
                       <span className="text-accent font-medium">{l.persons.join(", ")}</span> appears on the award and on this patent at {l.university}.
                       {l.system_only && " Matched at system level. Confirm the campus."}
                     </p>
+                    {l.pi_email && (
+                      <p className="mt-1 text-[13px] text-ink-3">
+                        PI {l.pi} <Email address={l.pi_email} className="ml-1" />
+                      </p>
+                    )}
                   </li>
                 ))}
                 {d.lineage.length > 15 && <li className="text-[14px] text-ink-3">And {d.lineage.length - 15} more.</li>}

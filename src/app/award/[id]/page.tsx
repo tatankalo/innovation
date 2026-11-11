@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rpc } from "@/lib/supabase";
 import { cleanTitle, date, decode, googlePatentUrl, inventorName, LENSES, money, nsfUrl, PROGRAMS, SECTORS } from "@/lib/format";
-import { ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
+import { Email, ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,7 @@ type Detail = {
     abstract_in_db: boolean | null;
     // Contact fields. Shown in full whenever the award row carries them.
     pi_email?: string | null;
-    co_pi_emails?: (string | null)[] | null;
+    co_pi_contacts?: { name: string; email: string | null }[] | null;
   } | null;
   university: { id: number; name: string; state: string } | null;
   tags: { sector: string | null; climate: boolean; agtech: boolean; climate_sub: string | null; ag_sub: string | null; readiness: number | null } | null;
@@ -68,9 +68,9 @@ export default async function AwardPage({ params }: { params: Promise<{ id: stri
   const a = d.award;
   const { body, boiler } = splitAbstract(a.abstract);
   const people = [a.pi_name, ...(a.co_pis ?? [])].filter(Boolean) as string[];
-  const emails = [a.pi_name ? a.pi_email : undefined, ...(a.co_pis ?? []).map((_, i) => a.co_pi_emails?.[i])].filter(
-    (_, i) => i > 0 || a.pi_name
-  );
+  const norm = (n: string) => n.toLowerCase().replace(/[^a-z]/g, "");
+  const contactByName = new Map((a.co_pi_contacts ?? []).map((c) => [norm(c.name), c.email]));
+  const emails = people.map((p, i) => (i === 0 && a.pi_name ? a.pi_email : contactByName.get(norm(p))) ?? null);
   const linked = new Set(d.lineage.flatMap((l) => l.persons));
 
   return (
@@ -187,11 +187,7 @@ export default async function AwardPage({ params }: { params: Promise<{ id: stri
                     <span className={linked.has(p) ? "font-medium" : ""}>{p}</span>
                     <span className="text-[12px] text-ink-3">{i === 0 ? "PI" : "Co-PI"}</span>
                   </div>
-                  {emails[i] && (
-                    <a href={`mailto:${emails[i]}`} className="block font-mono text-[12px] text-accent hover:underline underline-offset-4 break-all">
-                      {emails[i]}
-                    </a>
-                  )}
+                  <Email address={emails[i]} className="block" />
                 </li>
               ))}
             </ul>

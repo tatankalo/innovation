@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
-import { Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
+import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
@@ -33,6 +33,7 @@ type Hit = {
   has_lineage: boolean;
   lite: boolean;
   pi: string | null;
+  pi_email: string | null;
   sector: string | null;
   climate: boolean;
   agtech: boolean;
@@ -288,10 +289,14 @@ async function Results({ sp }: { sp: SP }) {
                       <Highlight text={cleanTitle(h.title)} q={q} />
                     </h3>
                   </Link>
-                  {where && (
+                  {(where || (h.kind === "award" && h.pi)) && (
                     <p className="mt-1 text-[14px] font-medium text-ink-2">
                       {where}
-                      {h.lite && h.pi && <span className="font-normal text-ink-3"> · PI {h.pi}</span>}
+                      {h.kind === "award" && h.pi && (
+                        <span className="font-normal text-ink-3">
+                          {where ? " · " : ""}PI {h.pi} <Email address={h.pi_email} className="ml-1" />
+                        </span>
+                      )}
                     </p>
                   )}
                   {h.snippet && (
