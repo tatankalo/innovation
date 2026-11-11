@@ -214,7 +214,7 @@ export default function HeroPulse() {
                     stroke="var(--paper)"
                     strokeWidth="1.25"
                     vectorEffect="non-scaling-stroke"
-                    style={{ transition: zp.dragging ? "none" : zp.zoomed ? "r 200ms ease-out, fill 700ms ease-out" : ease, transitionDelay: still || step > 0 ? "0ms" : `${Math.min(i * 6, 900)}ms` }}
+                    style={{ transition: zp.dragging ? "none" : zp.zoomed ? "r 200ms ease-out, fill 700ms ease-out" : still || step > 0 ? ease : ease.replace("r 1100ms cubic-bezier(.2,.8,.2,1)", `r 1100ms cubic-bezier(.2,.8,.2,1) ${Math.min(i * 6, 900)}ms`) }}
                   />
                 );
               })}
