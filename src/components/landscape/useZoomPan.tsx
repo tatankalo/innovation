@@ -47,6 +47,15 @@ export function useZoomPan(w: number, h: number) {
     [clamp, w, h]
   );
   const reset = useCallback(() => setT({ k: 1, x: 0, y: 0 }), []);
+  /** Zoom to show a box [x0, y0, x1, y1] in viewBox units, centered. */
+  const fit = useCallback(
+    (box: [number, number, number, number]) => {
+      const [x0, y0, x1, y1] = box;
+      const k = Math.min(MAX_K, Math.max(1, Math.min(w / (x1 - x0), h / (y1 - y0))));
+      setT(clamp(k, w / 2 - ((x0 + x1) / 2) * k, h / 2 - ((y0 + y1) / 2) * k));
+    },
+    [clamp, w, h]
+  );
 
   useEffect(() => {
     const el = ref.current;
@@ -145,6 +154,7 @@ export function useZoomPan(w: number, h: number) {
     moved,
     zoomAt,
     reset,
+    fit,
     /** Marks stay close to their on-screen size while the map grows, so clusters pull apart as you zoom in. */
     markScale: 1 / Math.pow(t.k, 0.85),
     svgStyle: {
