@@ -293,7 +293,13 @@ function UniTable({ rows, cols }: { rows: UniRow[]; cols: [string, (u: UniRow) =
                 </span>
               </td>
               {cols.map(([h, f, accent]) => (
-                <td key={h} className={`py-3 text-right font-mono text-[13px] tnum ${accent ? "text-accent" : ""}`}>{f(u)}</td>
+                <td key={h} className={`py-3 text-right font-mono text-[13px] tnum ${accent ? "text-accent" : ""}`}>
+                  {accent && f(u) ? (
+                    <Link href={`/people?uni=${u.id}`} className="underline decoration-accent/40 underline-offset-4 hover:decoration-accent" title="Open the Pioneer shortlist for this university">{f(u)}</Link>
+                  ) : (
+                    f(u)
+                  )}
+                </td>
               ))}
             </tr>
           ))}

@@ -234,6 +234,15 @@ async function Results({ sp }: { sp: SP }) {
     n.delete("p");
     return `/?${n.toString()}`;
   };
+  const uid = Number(one(sp.u)) || null;
+  const uName = uid ? uniName.get(uid) ?? null : null;
+  const clearUniHref = (() => {
+    const n = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (v === undefined ? [] : [[k, String(one(v))]])));
+    n.delete("u");
+    n.delete("p");
+    const s = n.toString();
+    return s ? `/?${s}` : "/?t=research,icorps,iucrc,sbir,sttr";
+  })();
   const pageHref = (p: number) => {
     const n = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (v === undefined ? [] : [[k, String(one(v))]])));
     n.set("p", String(p));
@@ -252,9 +261,22 @@ async function Results({ sp }: { sp: SP }) {
           {num(total)} {total === 1 ? "result" : "results"}
           {lens && <span className="text-accent"> in {LENSES[lens].label.toLowerCase()}</span>}
           {q && <span className="text-ink-2"> for “{q}”</span>}
+          {uName && <span className="text-ink-2"> at {uName}</span>}
         </h1>
         <Meta>{ms} ms</Meta>
       </div>
+      {uid && (
+        <div className="-mt-4 mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[14px]">
+          <span className="inline-flex items-center gap-2 h-8 pl-3 pr-1 rounded-[2px] bg-accent-wash text-ink font-semibold">
+            <span className="label !text-accent">University</span>
+            {uName ?? `#${uid}`}
+            <Link href={clearUniHref} aria-label="Clear the university filter" className="w-6 h-6 grid place-items-center rounded-[2px] text-ink-2 hover:text-ink hover:bg-paper">×</Link>
+          </span>
+          <Link href={`/university/${uid}`} className="font-semibold text-accent hover:underline underline-offset-4">University page →</Link>
+          <Link href={`/people?uni=${uid}`} className="font-semibold text-accent hover:underline underline-offset-4">Pioneer shortlist →</Link>
+          <span className="text-[13px] text-ink-3">SBIR and STTR awards go to companies, so they do not appear under a university.</span>
+        </div>
+      )}
       {relaxed && (
         <p className="-mt-4 mb-8 text-[14px] text-ink-2">
           No record contains every word. Showing the closest matches, best first.

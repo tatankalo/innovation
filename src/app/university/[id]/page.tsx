@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { rpc, supabase } from "@/lib/supabase";
 import { cleanTitle, date, inventorName, money, num, PROGRAMS } from "@/lib/format";
 import { Email, Meta, ProgramTag, SectionLabel } from "@/components/ui";
+import { getShortlist } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +34,12 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const uid = Number(id);
   if (!Number.isFinite(uid)) notFound();
-  const [p, centerRes] = await Promise.all([
+  const [p, centerRes, pioneer, early, propel] = await Promise.all([
     rpc<Profile>("university_profile", { uid }),
     supabase.from("iucrc_center_awards").select("award_id, center, pi_name, start_date, n_pubs, iucrc_centers(name)").eq("university_id", uid).order("start_date", { ascending: false }),
+    getShortlist({ topic: "all", seg: "ready", uni: uid, lim: 6 }),
+    getShortlist({ topic: "all", seg: "early", uni: uid, lim: 1 }),
+    getShortlist({ topic: "all", seg: "alumni", uni: uid, lim: 1 }),
   ]);
   if (!p.university) notFound();
   const centers = (centerRes.data ?? []) as unknown as { award_id: string; center: string; pi_name: string | null; start_date: string | null; n_pubs: number; iucrc_centers: { name: string | null } | null }[];
@@ -62,6 +66,44 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
         <Figure n={num(awardsTotal)} label="NSF awards" sub="Research, I-Corps, IUCRC" border />
         <Figure n={money(p.award_dollars)} label="NSF funding" sub="Total award amounts" border topBorder />
         <Figure n={num(p.lineage_links)} label="Lineage links" sub="Award team on a patent" border topBorder accent />
+      </section>
+
+      <section className="mt-14 bg-panel rounded-[2px] p-6 sm:p-8">
+        <div className="flex items-baseline justify-between gap-4 flex-wrap">
+          <p className="eyebrow">VentureWell pipeline at {shortName(u.name)}</p>
+          <Link href={`/people?uni=${u.id}`} className="text-[14px] font-semibold text-accent hover:underline underline-offset-4">Open the shortlist with emails →</Link>
+        </div>
+        <div className="mt-5 grid grid-cols-3 gap-6 max-w-[720px]">
+          {([
+            [pioneer.total, "Potential Pioneer teams", "ready"],
+            [early.total, "Early movers", "early"],
+            [propel.total, "Propel candidates", "alumni"],
+          ] as const).map(([n, label, seg], i) => (
+            <Link key={seg} href={`/people?uni=${u.id}${seg === "ready" ? "" : `&seg=${seg}`}`} className="group block">
+              <div className={`font-serif text-[36px] sm:text-[44px] leading-none tnum ${i === 0 ? "text-accent" : ""} group-hover:text-accent`}>{num(n)}</div>
+              <div className="mt-2 text-[14px] font-semibold">{label}</div>
+            </Link>
+          ))}
+        </div>
+        {pioneer.rows.length > 0 ? (
+          <ul className="mt-7 grid @3xl:grid-cols-2 gap-x-10 border-t border-rule">
+            {pioneer.rows.map((r) => (
+              <li key={r.pid} className="py-3 border-b border-rule">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-semibold">{r.name}</span>
+                  <Meta>{r.n_patents} {r.n_patents === 1 ? "patent" : "patents"}</Meta>
+                </div>
+                {r.award_id && r.award_title && (
+                  <Link href={`/award/${r.award_id}`} className="block mt-0.5 text-[14px] text-ink-2 hover:text-accent truncate">{cleanTitle(r.award_title)}</Link>
+                )}
+                <Email address={r.email} className="block mt-0.5" />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 text-[15px] text-ink-2">No potential Pioneer team leads here yet: no NSF-funded inventor with prototype-stage work and no I-Corps award.</p>
+        )}
+        <p className="mt-4 text-[12px] text-ink-3">Pioneer: NSF PI or co-PI, inventor on a patent from this university, prototype-stage work, no I-Corps award since 2021.</p>
       </section>
 
       <div className="grid @4xl:grid-cols-2 gap-12 @4xl:gap-16 mt-14">
