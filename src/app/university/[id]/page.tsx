@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { rpc } from "@/lib/supabase";
+import { rpc, supabase } from "@/lib/supabase";
 import { cleanTitle, date, inventorName, money, num, PROGRAMS } from "@/lib/format";
 import { Email, Meta, ProgramTag, SectionLabel } from "@/components/ui";
 
@@ -33,8 +33,12 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const uid = Number(id);
   if (!Number.isFinite(uid)) notFound();
-  const p = await rpc<Profile>("university_profile", { uid });
+  const [p, centerRes] = await Promise.all([
+    rpc<Profile>("university_profile", { uid }),
+    supabase.from("iucrc_center_awards").select("award_id, center, pi_name, start_date, n_pubs, iucrc_centers(name)").eq("university_id", uid).order("start_date", { ascending: false }),
+  ]);
   if (!p.university) notFound();
+  const centers = (centerRes.data ?? []) as unknown as { award_id: string; center: string; pi_name: string | null; start_date: string | null; n_pubs: number; iucrc_centers: { name: string | null } | null }[];
   const u = p.university;
   const awardsTotal = Object.values(p.award_counts).reduce((a, b) => a + b, 0);
   const systemOnly = p.patent_families > 0 && p.exact_families === 0;
@@ -138,6 +142,25 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
           )}
         </section>
       </div>
+
+      {centers.length > 0 && (
+        <section className="mt-16">
+          <SectionLabel right={<Link href="/centers" className="hover:text-ink">All centers →</Link>}>IUCRC centers at this university</SectionLabel>
+          <ul className="grid @3xl:grid-cols-2 gap-x-12">
+            {centers.map((c) => (
+              <li key={c.award_id} className="py-4 border-b border-rule">
+                <Link href={`/center/${encodeURIComponent(c.center)}`} className="font-serif text-[19px] leading-6 hover:text-accent">
+                  <span className="font-mono text-[12px] font-semibold text-accent mr-2">{c.center}</span>
+                  {c.iucrc_centers?.name ?? c.center}
+                </Link>
+                <p className="mt-1 text-[13px] text-ink-3">
+                  {c.pi_name ? `PI ${c.pi_name} · ` : ""}since {date(c.start_date)}{c.n_pubs ? ` · ${c.n_pubs} papers on this site's award` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="grid @4xl:grid-cols-2 gap-12 @4xl:gap-16 mt-16">
         <section>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { rpc } from "@/lib/supabase";
+import { rpc, supabase } from "@/lib/supabase";
+import { PaperList, type Paper } from "@/components/Publications";
 import { cleanTitle, date, decode, googlePatentUrl, inventorName, LENSES, money, nsfUrl, PROGRAMS, SECTORS } from "@/lib/format";
 import { Email, ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 
@@ -63,9 +64,14 @@ function splitAbstract(a: string | null) {
 
 export default async function AwardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const d = await rpc<Detail>("award_detail", { aid: id });
+  const [d, papers, centerRow] = await Promise.all([
+    rpc<Detail>("award_detail", { aid: id }),
+    rpc<Paper[]>("award_publications", { aid: id }),
+    supabase.from("iucrc_center_awards").select("center, iucrc_centers(name)").eq("award_id", id).maybeSingle(),
+  ]);
   if (!d.award) notFound();
   const a = d.award;
+  const center = centerRow.data as unknown as { center: string; iucrc_centers: { name: string | null } | null } | null;
   const { body, boiler } = splitAbstract(a.abstract);
   const people = [a.pi_name, ...(a.co_pis ?? [])].filter(Boolean) as string[];
   const norm = (n: string) => n.toLowerCase().replace(/[^a-z]/g, "");
@@ -141,6 +147,26 @@ export default async function AwardPage({ params }: { params: Promise<{ id: stri
               </ul>
             )}
           </section>
+
+          {(papers.length > 0 || center) && (
+            <section className="mt-16">
+              <SectionLabel right={papers.length ? `${papers.length} ${papers.length === 1 ? "paper" : "papers"}` : undefined}>
+                Publications from this award
+              </SectionLabel>
+              {papers.length ? (
+                <PaperList papers={papers} initial={5} />
+              ) : (
+                <p className="text-ink-2 text-[15px]">No papers reported to NSF on this award yet.</p>
+              )}
+              {center && (
+                <p className="mt-4 text-[14px]">
+                  <Link href={`/center/${encodeURIComponent(center.center)}`} className="text-accent font-medium hover:underline underline-offset-4">
+                    See every site and paper of {center.iucrc_centers?.name ?? center.center} ({center.center}) →
+                  </Link>
+                </p>
+              )}
+            </section>
+          )}
 
           <section className="mt-16">
             <SectionLabel>Abstract</SectionLabel>

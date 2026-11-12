@@ -3,8 +3,9 @@ import { Suspense } from "react";
 import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
 import HeroPulse from "@/components/landscape/HeroPulse";
-import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
+import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
+import { PaperList, type Paper } from "@/components/Publications";
 import { searchArgs } from "@/lib/searchParams";
 import { getOverview, getReport } from "@/lib/vw";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
@@ -221,13 +222,14 @@ async function Results({ sp }: { sp: SP }) {
     Object.entries(sp).flatMap(([k, v]) => (v === undefined || k === "p" ? [] : [[k, String(one(v))]]))
   ).toString();
   const t0 = Date.now();
-  const [res, unis] = await Promise.all([
+  const [res, unis, papers] = await Promise.all([
     rpc<{ total: number; relaxed: boolean; hits: Hit[]; facets: Parameters<typeof Filters>[0]["facets"] }>("search_v2", {
       ...args,
       lim: PER,
       off: (page - 1) * PER,
     }),
     rpc<Uni[]>("list_universities"),
+    q && page === 1 ? rpc<{ total: number; items: Paper[] }>("search_publications", { q, lim: 3 }) : Promise.resolve(null),
   ]);
   const ms = Date.now() - t0;
   const { facets, relaxed } = res;
@@ -310,6 +312,17 @@ async function Results({ sp }: { sp: SP }) {
               </a>
             )}
           </div>
+          {papers && papers.total > 0 && (
+            <section className="mb-8 border border-rule rounded-[2px] bg-surface p-5">
+              <SectionLabel right={papers.total > 3 ? `${num(papers.total)} papers` : undefined}>
+                Papers from IUCRC centers
+              </SectionLabel>
+              <PaperList papers={papers.items} initial={3} q={q} showCenters />
+              {papers.total > 3 && (
+                <Link href="/centers" className="text-[13px] text-ink-3 hover:text-accent">Browse papers by center →</Link>
+              )}
+            </section>
+          )}
           <ol className="border-t border-rule">
             {hits.map((h) => {
               const href = h.kind === "patent" ? `/patent/${h.id}` : `/award/${h.id}`;
