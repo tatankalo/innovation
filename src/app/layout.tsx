@@ -26,14 +26,15 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
           <div className="mx-auto max-w-[1120px] px-4 sm:px-8 h-16 flex items-center justify-between">
             <Link href="/" className="flex items-baseline gap-3 leading-none">
               <span className="text-[22px] font-extrabold tracking-[-0.01em]">Unshelved<span className="text-[#f2a36f]">.</span></span>
-              <span className="hidden sm:inline text-[11px] font-bold uppercase tracking-[0.08em] text-band-ink-2">Tech discovery for VentureWell</span>
+              <span className="hidden sm:inline lg:hidden 2xl:inline whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.08em] text-band-ink-2">Tech discovery for VentureWell</span>
             </Link>
-            <nav className="flex items-center gap-5 text-[14px] font-semibold text-band-ink-2">
+            <nav className="flex items-center gap-5 whitespace-nowrap text-[14px] font-semibold text-band-ink-2">
               <Link href="/?t=patent" className="hover:text-band-ink hidden xl:inline">Patents</Link>
               <Link href="/?t=research,icorps,iucrc,sbir,sttr" className="hover:text-band-ink hidden xl:inline">NSF awards</Link>
               <Link href="/landscape" className="hover:text-band-ink hidden sm:inline">Landscape</Link>
               <Link href="/centers" className="hover:text-band-ink hidden lg:inline">IUCRC centers</Link>
               <Link href="/universities" className="hover:text-band-ink hidden lg:inline">Universities</Link>
+              <Link href="/pipeline" className="hover:text-band-ink hidden md:inline">Pipeline</Link>
               <Link href="/venturewell" className="h-8 px-3 inline-flex items-center rounded-[2px] bg-[#d47a42] text-white hover:bg-[#c0621f]">For VentureWell</Link>
               <ThemeToggle />
             </nav>
