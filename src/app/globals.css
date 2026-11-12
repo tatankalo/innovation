@@ -162,7 +162,7 @@ mark {
   :root, :root[data-theme="dark"] {
     --paper: #ffffff; --surface: #ffffff; --ink: #17160f; --ink-2: #57544b; --ink-3: #6f6b61;
     --rule: #dcd8ce; --accent: #c2410c; --accent-wash: #fcebe2;
-    --viz-climate_energy: #1baf7a; --viz-ag_food: #eda100;
+    --viz-climate_energy: #1baf7a; --viz-ag_food: #eda100; --viz-health_bio: #e34948; --viz-computing_ai: #2a78d6;
     color-scheme: light;
   }
   @page { margin: 14mm 12mm; }

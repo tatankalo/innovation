@@ -3,7 +3,7 @@ import PeopleTable from "@/components/vw/PeopleTable";
 import PrintButton from "@/components/vw/PrintButton";
 import { Meta } from "@/components/ui";
 import { num } from "@/lib/format";
-import { getShortlist, parseSegment, parseTopic, SEGMENTS, type Segment } from "@/lib/vw";
+import { getShortlist, LIST_TOPICS, parseSegment, parseTopic, SEGMENTS, type Segment } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -57,7 +57,7 @@ export default async function People({ searchParams }: { searchParams: Promise<S
         </div>
         <div className="flex gap-6 flex-wrap text-[14px]">
           <span className="label pt-0.5 w-16">Topic</span>
-          {[["all", "All topics"], ["climate", "Climate"], ["agtech", "Ag tech"]].map(([k, l]) => (
+          {LIST_TOPICS.map(([k, l]) => (
             <Link key={k} href={href({ topic: k })} scroll={false} className={tab(topic === k)}>{l}</Link>
           ))}
         </div>

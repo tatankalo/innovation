@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Email, LineageBadge, ReadinessBadge, TopicChip } from "@/components/ui";
 import { cleanTitle, date, LENSES, money } from "@/lib/format";
-import { type Person, uniLabel } from "@/lib/vw";
+import { type Person, uniLabel, VW_SUBS } from "@/lib/vw";
 
 /** Recruiting shortlist: one row per person. Name, school, contact, the award that qualifies them, the signals. */
 export default function PeopleTable({ rows, start = 1 }: { rows: Person[]; start?: number }) {
@@ -11,7 +11,12 @@ export default function PeopleTable({ rows, start = 1 }: { rows: Person[]; start
         const subs = [
           ...(p.climate_subs ?? []).map((s) => LENSES.climate.subs[s]).filter(Boolean),
           ...(p.ag_subs ?? []).map((s) => LENSES.agtech.subs[s]).filter(Boolean),
-        ].slice(0, 2);
+        ];
+        const lead = [
+          ...(p.health_subs ?? []).map((s) => VW_SUBS.health[s]).filter(Boolean),
+          ...(p.ocean_subs ?? []).map((s) => VW_SUBS.ocean[s]).filter(Boolean),
+        ];
+        const chips = [...lead, ...subs].slice(0, 2);
         return (
           <li key={p.pid} className="grid sm:grid-cols-[36px_minmax(0,1fr)_200px] gap-x-4 gap-y-2 py-5 border-b border-rule break-inside-avoid">
             <span className="hidden sm:block font-mono text-[12px] text-ink-3 tnum pt-1.5">{start + i}</span>
@@ -44,7 +49,7 @@ export default function PeopleTable({ rows, start = 1 }: { rows: Person[]; start
               <span className="flex gap-1.5 flex-wrap sm:justify-end">
                 {p.has_icorps && <TopicChip>I-Corps</TopicChip>}
                 {p.has_iucrc && <TopicChip>IUCRC</TopicChip>}
-                {subs.map((s) => <TopicChip key={s}>{s}</TopicChip>)}
+                {chips.map((s) => <TopicChip key={s}>{s}</TopicChip>)}
               </span>
             </div>
           </li>

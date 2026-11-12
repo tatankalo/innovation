@@ -12,7 +12,19 @@ export const metadata = {
 };
 
 export default async function ForVentureWell() {
-  const [{ data: o, refreshed_at }, { data: climate }, { data: ag }] = await Promise.all([getOverview(), getReport("climate"), getReport("agtech")]);
+  const [{ data: o, refreshed_at }, { data: climate }, { data: ag }, { data: health }, { data: ocean }] = await Promise.all([
+    getOverview(),
+    getReport("climate"),
+    getReport("agtech"),
+    getReport("health"),
+    getReport("ocean"),
+  ]);
+  const briefs = [
+    { href: "/report/climate", label: "Climate", n: climate.totals.ready, fit: "Aspire Climatetech" },
+    { href: "/report/health", label: "Health", n: health.totals.ready, fit: "Aspire Medtech, RADx, Blueprint" },
+    { href: "/report/ocean", label: "Ocean", n: ocean.totals.ready, fit: "Ocean Enterprise Accelerator" },
+    { href: "/report/agtech", label: "Ag tech", n: ag.totals.ready, fit: "Moonshots for Development" },
+  ];
 
   const programs = [
     {
@@ -32,21 +44,20 @@ export default async function ForVentureWell() {
       cta: "Open the early movers",
     },
     {
-      name: "Funder-sponsored accelerators",
-      n: climate.totals.ready + ag.totals.ready,
-      unit: "climate and ag tech candidates",
-      body: `A ready-made brief for each funder topic: ${num(climate.totals.ready)} climate and ${num(ag.totals.ready)} ag tech researchers who are ready to recruit, with charts and top universities.`,
-      href: "/report/climate",
-      cta: "Open the climate brief",
-      alt: { href: "/report/agtech", label: "Ag tech brief" },
-    },
-    {
       name: "Alumni and mentors",
       n: o.alumni,
       unit: "I-Corps alumni with patents",
       body: "Researchers who went through I-Corps and hold patents. Candidates for mentors, showcase speakers and follow-on programs.",
       href: "/people?seg=alumni",
       cta: "Open the alumni list",
+    },
+    {
+      name: "NSF POSE and open source",
+      n: o.oss_people ?? 0,
+      unit: "open-source project leads",
+      body: `PIs and co-PIs on ${num(o.oss_awards ?? 0)} NSF awards that build or maintain open-source software, hardware, data or models. Candidates for open-source ecosystem training.`,
+      href: "/people?topic=opensource&seg=all",
+      cta: "Open the open-source list",
     },
   ];
 
@@ -88,11 +99,29 @@ export default async function ForVentureWell() {
               <p className="mt-4 text-[15px] leading-6 text-ink-2 max-w-[52ch]">{p.body}</p>
               <p className="mt-5 flex gap-5 text-[14px] font-medium no-print">
                 <Link href={p.href} className="text-accent hover:underline underline-offset-4">{p.cta} →</Link>
-                {p.alt && <Link href={p.alt.href} className="text-ink-2 hover:text-ink">{p.alt.label} →</Link>}
               </p>
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="mt-20 break-inside-avoid">
+        <SectionLabel right="One printable page per funder topic">Funder briefs</SectionLabel>
+        <p className="-mt-2 mb-2 text-[15px] leading-6 text-ink-2 max-w-[70ch]">
+          When a funder asks for teams in a topic, open the brief: funding, top universities and the people ready to recruit.
+        </p>
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-10">
+          {briefs.map((b) => (
+            <li key={b.href} className="border-b border-rule">
+              <Link href={b.href} className="group block py-6">
+                <span className="label">{b.label}</span>
+                <span className="mt-3 block font-serif text-[40px] leading-none tracking-[-0.02em] tnum group-hover:text-accent">{num(b.n)}</span>
+                <span className="mt-2 block text-[14px] font-medium">ready for I-Corps</span>
+                <span className="mt-1 block text-[13px] text-ink-3">{b.fit}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mt-20 break-inside-avoid">

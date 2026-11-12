@@ -79,12 +79,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 }
 
 async function Landing() {
-  const [stats, features, { data: vw }, { data: climate }, { data: ag }] = await Promise.all([
+  const [stats, features, { data: vw }, { data: climate }, { data: ag }, { data: health }, { data: ocean }] = await Promise.all([
     rpc<Stats>("site_stats"),
     rpc<Feature[]>("featured_lineage", { n: 3 }, { cache: false }),
     getOverview(),
     getReport("climate"),
     getReport("agtech"),
+    getReport("health"),
+    getReport("ocean"),
   ]);
   const figures = [
     { n: num(stats.families), label: "patented inventions", sub: "One per patent family" },
@@ -157,8 +159,8 @@ async function Landing() {
           {[
             { href: "/report/climate", k: "Climate funder brief", n: climate.totals.ready, d: `${money(climate.totals.dollars)} in NSF awards · ${num(climate.totals.patents)} patents` },
             { href: "/report/agtech", k: "Ag tech funder brief", n: ag.totals.ready, d: `${money(ag.totals.dollars)} in NSF awards · ${num(ag.totals.patents)} patents` },
-            { href: "/people?seg=early", k: "Early movers for E-Teams", n: vw.early, d: "Near-market work, no patent filed yet" },
-            { href: "/people?seg=alumni", k: "I-Corps alumni with patents", n: vw.alumni, d: "Mentors and showcase candidates" },
+            { href: "/report/health", k: "Health funder brief", n: health.totals.ready, d: `${money(health.totals.dollars)} in NSF awards · ${num(health.totals.awards)} awards` },
+            { href: "/report/ocean", k: "Ocean funder brief", n: ocean.totals.ready, d: `${money(ocean.totals.dollars)} in NSF awards · ${num(ocean.totals.awards)} awards` },
           ].map((r) => (
             <li key={r.href} className="border-b border-rule">
               <Link href={r.href} className="group grid grid-cols-[1fr_auto] gap-x-6 py-5 items-baseline">

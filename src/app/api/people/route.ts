@@ -1,5 +1,5 @@
 import { LENSES, nsfUrl, READINESS, readinessLevel, SECTORS } from "@/lib/format";
-import { getShortlist, parseSegment, parseTopic, uniLabel } from "@/lib/vw";
+import { getShortlist, parseSegment, parseTopic, uniLabel, VW_SUBS } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
   const header = [
     "name", "role", "email", "university", "state", "hbcu", "epscor", "readiness", "readiness_score",
     "patent_families", "latest_patent", "nsf_awards", "nsf_dollars", "latest_award", "has_icorps", "has_iucrc",
-    "sector", "climate_topics", "ag_topics", "best_award_title", "best_award_nsf_url", "unshelved_url",
+    "sector", "climate_topics", "ag_topics", "health_topics", "ocean_topics", "best_award_title", "best_award_nsf_url", "unshelved_url",
   ];
   const lines = [header.join(",")];
   for (const p of rows) {
@@ -59,6 +59,8 @@ export async function GET(req: Request) {
         p.sector ? SECTORS[p.sector] ?? p.sector : "",
         (p.climate_subs ?? []).map((s) => LENSES.climate.subs[s] ?? s).join("; "),
         (p.ag_subs ?? []).map((s) => LENSES.agtech.subs[s] ?? s).join("; "),
+        (p.health_subs ?? []).map((s) => VW_SUBS.health[s] ?? s).join("; "),
+        (p.ocean_subs ?? []).map((s) => VW_SUBS.ocean[s] ?? s).join("; "),
         p.award_title,
         p.award_id ? nsfUrl(p.award_id) : "",
         p.award_id ? `${url.origin}/award/${p.award_id}` : "",
