@@ -48,7 +48,7 @@ export default async function ForVentureWell() {
       step: "Aspire",
       offer: "Investor readiness for startups",
       lists: [
-        { n: s.sttr_partner_awards, unit: "STTR startup partnerships", body: `Small companies with NSF STTR awards that partner with ${num(s.sttr_unis)} universities in the data. University spinouts at the stage Aspire serves.`, href: "/?t=sttr", cta: "Search the STTR startups" },
+        { n: s.spinout_companies, unit: "university startups", body: `Companies with NSF SBIR or STTR awards whose founder or lead researcher is an inventor or NSF PI at a university in the same state. ${num(s.spinout_unis)} universities, ${num(s.spinout_awards)} awards. The stage Aspire serves.`, href: "/startups", cta: "Open the startup list" },
       ],
     },
   ];

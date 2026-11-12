@@ -128,3 +128,12 @@ export function queryStems(q: string) {
     .filter((w) => w.length > 2 && !STOP.has(w) && w !== "not")
     .map((w) => w.slice(0, Math.max(4, Math.min(w.length, 6))));
 }
+
+/** NSF lists company names in capitals. Soften them for reading; keep common acronyms. */
+export function companyName(n: string) {
+  if (!n || n !== n.toUpperCase()) return n;
+  return n
+    .toLowerCase()
+    .replace(/\b([a-z])/g, (c) => c.toUpperCase())
+    .replace(/\b(Llc|Ai|Usa|Pbc|Lp|Llp|Ii|Iii)\b/g, (m) => m.toUpperCase());
+}

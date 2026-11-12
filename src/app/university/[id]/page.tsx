@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rpc, supabase } from "@/lib/supabase";
-import { cleanTitle, date, inventorName, money, num, PROGRAMS } from "@/lib/format";
+import { cleanTitle, companyName, date, inventorName, money, num, PROGRAMS } from "@/lib/format";
 import { Email, Meta, ProgramTag, SectionLabel } from "@/components/ui";
-import { getShortlist } from "@/lib/vw";
+import { getShortlist, type Spinout } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 
@@ -34,12 +34,13 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const uid = Number(id);
   if (!Number.isFinite(uid)) notFound();
-  const [p, centerRes, pioneer, early, propel] = await Promise.all([
+  const [p, centerRes, pioneer, early, propel, spinouts] = await Promise.all([
     rpc<Profile>("university_profile", { uid }),
     supabase.from("iucrc_center_awards").select("award_id, center, pi_name, start_date, n_pubs, iucrc_centers(name)").eq("university_id", uid).order("start_date", { ascending: false }),
     getShortlist({ topic: "all", seg: "ready", uni: uid, lim: 6 }),
     getShortlist({ topic: "all", seg: "early", uni: uid, lim: 1 }),
     getShortlist({ topic: "all", seg: "alumni", uni: uid, lim: 1 }),
+    rpc<Spinout[]>("university_spinouts", { uid }),
   ]);
   if (!p.university) notFound();
   const centers = (centerRes.data ?? []) as unknown as { award_id: string; center: string; pi_name: string | null; start_date: string | null; n_pubs: number; iucrc_centers: { name: string | null } | null }[];
@@ -73,13 +74,14 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
           <p className="eyebrow">VentureWell pipeline at {shortName(u.name)}</p>
           <Link href={`/people?uni=${u.id}`} className="text-[14px] font-semibold text-accent hover:underline underline-offset-4">Open the shortlist with emails →</Link>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-6 max-w-[720px]">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-[900px]">
           {([
             [pioneer.total, "Potential Pioneer teams", "ready"],
             [early.total, "Early movers", "early"],
             [propel.total, "Propel candidates", "alumni"],
+            [new Set(spinouts.map((x) => x.company)).size, "Aspire: linked startups", "startups"],
           ] as const).map(([n, label, seg], i) => (
-            <Link key={seg} href={`/people?uni=${u.id}${seg === "ready" ? "" : `&seg=${seg}`}`} className="group block">
+            <Link key={seg} href={seg === "startups" ? "#startups" : `/people?uni=${u.id}${seg === "ready" ? "" : `&seg=${seg}`}`} className="group block">
               <div className={`font-serif text-[36px] sm:text-[44px] leading-none tnum ${i === 0 ? "text-accent" : ""} group-hover:text-accent`}>{num(n)}</div>
               <div className="mt-2 text-[14px] font-semibold">{label}</div>
             </Link>
@@ -104,6 +106,27 @@ export default async function UniversityPage({ params }: { params: Promise<{ id:
           <p className="mt-6 text-[15px] text-ink-2">No potential Pioneer team leads here yet: no NSF-funded inventor with prototype-stage work and no I-Corps award.</p>
         )}
         <p className="mt-4 text-[12px] text-ink-3">Pioneer: NSF PI or co-PI, inventor on a patent from this university, prototype-stage work, no I-Corps award since 2021.</p>
+        {spinouts.length > 0 && (
+          <div id="startups" className="mt-8 scroll-mt-20">
+            <div className="flex items-baseline justify-between gap-4 flex-wrap border-b border-rule pb-3">
+              <h2 className="label">Startups linked to {shortName(u.name)}</h2>
+              <Link href="/startups" className="text-[13px] text-ink-3 hover:text-ink">All startups →</Link>
+            </div>
+            <ul className="grid @3xl:grid-cols-2 gap-x-10">
+              {spinouts.map((x) => (
+                <li key={x.company} className="py-3 border-b border-rule">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <Link href={`/award/${x.award_id}`} className="font-semibold hover:text-accent">{companyName(x.company)}</Link>
+                    <Meta>{x.sttr ? "STTR" : "SBIR"} · {money(x.dollars ?? 0)}</Meta>
+                  </div>
+                  <p className="mt-0.5 text-[14px] text-ink-2 truncate">{cleanTitle(x.title)}</p>
+                  <p className="mt-0.5 text-[13px] text-ink-3">{x.people} · {x.inventor ? "inventor on a patent here" : "NSF PI here"}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[12px] text-ink-3">Linked by name: the company&apos;s SBIR or STTR PI is an inventor or NSF PI here, in the same state. Likely, not confirmed.</p>
+          </div>
+        )}
       </section>
 
       <div className="grid @4xl:grid-cols-2 gap-12 @4xl:gap-16 mt-14">

@@ -231,6 +231,9 @@ export type Strategy = {
   sttr_unis: number;
   iucrc_centers: number;
   iucrc_papers: number;
+  spinout_companies: number;
+  spinout_unis: number;
+  spinout_awards: number;
 };
 export const getStrategy = () => readReport<Strategy>("strategy");
 export const getReport = (t: Topic) => readReport<Report>(t);
@@ -285,3 +288,20 @@ export function uniLabel(name: string) {
 export function pct(a: number, b: number) {
   return b ? Math.round((a / b) * 100) : 0;
 }
+
+/** NSF SBIR/STTR companies tied to a university through a person (spinout_links). */
+export type Spinout = {
+  company: string;
+  state: string | null;
+  university_id?: number;
+  university?: string;
+  awards: number;
+  dollars: number | null;
+  last_start: string | null;
+  sttr: boolean;
+  award_id: string;
+  title: string;
+  people: string;
+  inventor: boolean;
+  family_id?: string | null;
+};

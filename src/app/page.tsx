@@ -274,7 +274,7 @@ async function Results({ sp }: { sp: SP }) {
           </span>
           <Link href={`/university/${uid}`} className="font-semibold text-accent hover:underline underline-offset-4">University page →</Link>
           <Link href={`/people?uni=${uid}`} className="font-semibold text-accent hover:underline underline-offset-4">Pioneer shortlist →</Link>
-          <span className="text-[13px] text-ink-3">SBIR and STTR awards go to companies, so they do not appear under a university.</span>
+          <span className="text-[13px] text-ink-3">SBIR and STTR awards go to companies, so they do not appear here. <Link href={`/university/${uid}#startups`} className="underline underline-offset-4 hover:text-ink">See startups linked to this university</Link>.</span>
         </div>
       )}
       {relaxed && (

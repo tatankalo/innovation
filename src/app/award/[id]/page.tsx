@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rpc, supabase } from "@/lib/supabase";
 import { PaperList, type Paper } from "@/components/Publications";
-import { cleanTitle, date, decode, googlePatentUrl, inventorName, LENSES, money, nsfUrl, PROGRAMS, SECTORS } from "@/lib/format";
+import { cleanTitle, companyName, date, decode, googlePatentUrl, inventorName, LENSES, money, nsfUrl, PROGRAMS, SECTORS } from "@/lib/format";
 import { Email, ExternalLink, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
@@ -64,10 +64,11 @@ function splitAbstract(a: string | null) {
 
 export default async function AwardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [d, papers, centerRow] = await Promise.all([
+  const [d, papers, centerRow, spin] = await Promise.all([
     rpc<Detail>("award_detail", { aid: id }),
     rpc<Paper[]>("award_publications", { aid: id }),
     supabase.from("iucrc_center_awards").select("center, iucrc_centers(name)").eq("award_id", id).maybeSingle(),
+    rpc<{ university_id: number; university: string; person: string; via: string; n_families: number; family_id: string | null }[]>("award_spinout", { aid: id }),
   ]);
   if (!d.award) notFound();
   const a = d.award;
@@ -114,6 +115,25 @@ export default async function AwardPage({ params }: { params: Promise<{ id: stri
 
       <div className="grid @4xl:grid-cols-[1fr_300px] gap-12 @4xl:gap-16 pt-10">
         <div className="min-w-0">
+          {spin.length > 0 && (
+            <section className="mb-14 bg-panel rounded-[2px] p-6">
+              <p className="eyebrow">University startup · Aspire candidate</p>
+              <ul className="mt-3 space-y-2 text-[16px] leading-7">
+                {spin.map((x) => (
+                  <li key={x.university_id + x.person}>
+                    <span className="font-semibold">{x.person}</span> is {x.via === "nsf_pi" ? "an NSF-funded researcher" : `an inventor on ${x.n_families} ${x.n_families === 1 ? "patent" : "patents"}`} at{" "}
+                    <Link href={`/university/${x.university_id}`} className="underline decoration-rule underline-offset-4 hover:decoration-ink">{x.university}</Link>
+                    {x.via === "both" && ", and an NSF PI there"}.
+                    {x.family_id && (
+                      <Link href={`/patent/${x.family_id}`} className="ml-2 text-[14px] font-semibold text-accent hover:underline underline-offset-4">See a patent →</Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-[12px] text-ink-3">Matched by name within the same state, so likely but not confirmed. {companyName(a.awardee_name)} may be a spinout.</p>
+            </section>
+          )}
+
           <section>
             <SectionLabel right={d.lineage.length ? `${d.lineage.length} patent ${d.lineage.length === 1 ? "family" : "families"}` : undefined}>
               <span className="text-accent">Lineage</span>: patents by this team
