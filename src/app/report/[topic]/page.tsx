@@ -54,7 +54,7 @@ export default async function ReportPage({ params }: { params: Promise<{ topic: 
               ? { n: num(T.patents), label: "Patented inventions", sub: "University patent families" }
               : { n: num(T.people), label: "Researchers", sub: "NSF PIs and co-PIs in this topic" },
             { n: num(T.universities), label: "Universities", sub: "With an award or a patent in this topic" },
-            { n: num(T.ready), label: "Ready for I-Corps", sub: "Inventor, prototype stage, no I-Corps award yet", accent: true },
+            { n: num(T.ready), label: "Potential Pioneer teams", sub: "Inventor, prototype stage, no I-Corps award yet", accent: true },
           ]}
         />
       </div>
@@ -105,7 +105,7 @@ export default async function ReportPage({ params }: { params: Promise<{ topic: 
                 <th className="label py-3 font-semibold text-right">Awards</th>
                 <th className="label py-3 font-semibold text-right">NSF $</th>
                 {hasPatents && <th className="label py-3 font-semibold text-right">Patents</th>}
-                <th className="label py-3 font-semibold text-right">Ready for I-Corps</th>
+                <th className="label py-3 font-semibold text-right">Pioneer teams</th>
                 <th className="label py-3 font-semibold text-right">I-Corps awards</th>
               </tr>
             </thead>
@@ -130,7 +130,7 @@ export default async function ReportPage({ params }: { params: Promise<{ topic: 
 
       <section className="mt-16">
         <SectionLabel right={<Link href={`/people?topic=${t}`} className="hover:text-accent no-print">All {num(short.total)} on the shortlist →</Link>}>
-          Recruiting shortlist: ready for I-Corps
+          Recruiting shortlist: potential Pioneer teams
         </SectionLabel>
         <p className="-mt-2 mb-6 text-[14px] text-ink-2 max-w-[68ch]">
           NSF-funded PIs and co-PIs in {meta.label.toLowerCase()} who are named inventors at the same university, with
@@ -144,7 +144,7 @@ export default async function ReportPage({ params }: { params: Promise<{ topic: 
         <p>
           Sources: NSF award data (research, I-Corps, IUCRC, SBIR, STTR) and university patents from Google Patents Public
           Datasets, since 2021. Topic and readiness tags come from a language model reading each abstract. A person is
-          &ldquo;ready for I-Corps&rdquo; when an NSF PI or co-PI name matches a patent inventor at the same university, their
+          a potential Pioneer team lead when an NSF PI or co-PI name matches a patent inventor at the same university, their
           best award reads as prototype stage or later, and they hold no NSF I-Corps award in this data. A name match
           shows the same person, not that the award produced the patent. Data refreshed {date(refreshed_at.slice(0, 10))}.
         </p>

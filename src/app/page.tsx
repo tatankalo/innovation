@@ -141,7 +141,7 @@ async function Landing() {
         <div>
           <p className="label mb-4 text-accent">For VentureWell</p>
           <h2 className="font-serif text-[34px] leading-[40px] sm:text-[44px] sm:leading-[50px] tracking-[-0.02em]">
-            {num(vw.ready)} NSF-funded inventors are ready for <span className="whitespace-nowrap">I-Corps.</span> <em className="text-ink-2">None holds an <span className="whitespace-nowrap">I-Corps</span> award.</em>
+            {num(vw.ready)} NSF-funded inventors could lead Pioneer teams. <em className="text-ink-2">None has been through <span className="whitespace-nowrap">I-Corps.</span></em>
           </h2>
           <p className="mt-5 text-[17px] leading-7 text-ink-2 max-w-[52ch]">
             Each one holds an NSF award and a patent at the same university, with prototype-stage work. {num(vw.msi_ready)} are

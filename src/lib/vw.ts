@@ -45,25 +45,25 @@ export const TOPICS: Record<Topic, { label: string; long: string; color: string;
 
 export const SEGMENTS: Record<Segment, { label: string; short: string; phrase: string; rule: string; use: string }> = {
   ready: {
-    label: "Ready for I-Corps",
-    short: "Ready for I-Corps",
-    phrase: "ready for I-Corps",
+    label: "Potential Pioneer teams",
+    short: "Pioneer teams",
+    phrase: "potential Pioneer team leads",
     rule: "NSF-funded PI or co-PI. Named inventor on a patent from the same university. Prototype-stage work or later. No NSF I-Corps award since 2021.",
-    use: "Recruit into I-Corps cohorts and funder-sponsored accelerators.",
+    use: "Invite to form a Pioneer E-Team, then grow into Propel and funder-sponsored accelerators.",
   },
   early: {
     label: "Early movers",
     short: "Early movers",
     phrase: "near market, no patent yet",
     rule: "Near-market NSF work. No patent filed yet. No NSF I-Corps award since 2021.",
-    use: "Invite to E-Team grants and faculty programs before the IP is locked in.",
+    use: "Invite to Pioneer with IP education before the patent is filed.",
   },
   alumni: {
-    label: "I-Corps alumni with patents",
-    short: "Alumni with patents",
+    label: "Propel candidates",
+    short: "Propel candidates",
     phrase: "I-Corps alumni with patents",
     rule: "Has an NSF I-Corps award since 2021 and is a named inventor on a patent from the same university.",
-    use: "Mentors, showcase speakers and candidates for follow-on funding.",
+    use: "Already trained and holding IP. Candidates for Propel, mentors and showcase speakers.",
   },
   all: {
     label: "Everyone",
@@ -215,6 +215,24 @@ async function readReport<T>(topic: string): Promise<{ data: T; refreshed_at: st
 }
 
 export const getOverview = () => readReport<Overview>("overview");
+
+/** Figures framed by VentureWell's Five-Year Strategy 2026-2031. Built by vw_build_strategy(). */
+export type Strategy = {
+  innovator_inventors: number;
+  innovator_authors: number;
+  catalysts: number;
+  catalyst_inventors: number;
+  families: number;
+  inventors_no_icorps: number;
+  unis: number;
+  top20_fam_pct: number;
+  top20_dollars_pct: number;
+  sttr_partner_awards: number;
+  sttr_unis: number;
+  iucrc_centers: number;
+  iucrc_papers: number;
+};
+export const getStrategy = () => readReport<Strategy>("strategy");
 export const getReport = (t: Topic) => readReport<Report>(t);
 
 export type ShortlistArgs = { topic: ListTopic; seg: Segment; st?: string | null; uni?: number | null; msi?: boolean; lim?: number; off?: number };

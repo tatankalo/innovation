@@ -8,7 +8,7 @@ import { getShortlist, LIST_TOPICS, parseSegment, parseTopic, SEGMENTS, type Seg
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Recruiting shortlist · Unshelved",
-  description: "NSF-funded researchers ready for I-Corps, E-Teams and funder programs, with contact details.",
+  description: "NSF-funded researchers who could lead Pioneer and Propel teams or join funder programs, with contact details.",
 };
 
 type SP = Record<string, string | string[] | undefined>;

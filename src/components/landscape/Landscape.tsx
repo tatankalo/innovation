@@ -241,7 +241,7 @@ export default function Landscape() {
               {/* direct labels for the leaders only */}
               <g className="hidden sm:block" style={{ pointerEvents: "none" }}>
                 {view && labelLeaders(view.rows, view.max, zp.k, zp.markScale).map((r) => (
-                  <text key={r.id} x={r.lx} y={r.ly} textAnchor={r.anchor} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
+                  <text key={r.id} x={r.lx} y={r.ly} textAnchor={r.anchor} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-open-sans)" }}>
                     {shortName(r.name)}
                   </text>
                 ))}

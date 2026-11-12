@@ -1,14 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f7f5f0;
+  --paper: #f7f7f5;
   --surface: #ffffff;
-  --ink: #17160f;
-  --ink-2: #57544b;
-  --ink-3: #8c887d;
-  --rule: #e3dfd6;
-  --accent: #d9480f;
-  --accent-wash: #fcebe2;
+  --ink: #2a3132;
+  --ink-2: #565d5f;
+  --ink-3: #7b8284;
+  --rule: #e1e3e3;
+  --accent: #b8581c;
+  --accent-wash: #fbeee3;
+  --brick: #b2483f;
+  --teal: #2b7d76;
+  --panel: #efefed;
+  --wash: #faf3ea;
+  --band: #5f6668;
+  --band-ink: #ffffff;
+  --band-ink-2: #dfe2e2;
   --viz-computing_ai: #2a78d6;
   --viz-materials_manufacturing: #eb6834;
   --viz-climate_energy: #1baf7a;
@@ -16,21 +23,28 @@
   --viz-education_social: #e87ba4;
   --viz-robotics_hardware: #6250d6;
   --viz-health_bio: #e34948;
-  --viz-other: #8c887d;
-  --viz-land: #ebe7de;
+  --viz-other: #858c8e;
+  --viz-land: #e8eaea;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0e0e0c;
-    --surface: #171714;
-    --ink: #eeebe3;
-    --ink-2: #a9a59a;
-    --ink-3: #6f6c64;
-    --rule: #2a2925;
-    --accent: #ff7a45;
-    --accent-wash: #2a1810;
+    --paper: #141819;
+    --surface: #1d2223;
+    --ink: #eceeee;
+    --ink-2: #a9b0b1;
+    --ink-3: #7a8283;
+    --rule: #2c3334;
+    --accent: #e8935a;
+    --accent-wash: #33231a;
+    --brick: #e07468;
+    --teal: #5cbdb4;
+    --panel: #1b2021;
+    --wash: #241f19;
+    --band: #0d1011;
+    --band-ink: #ffffff;
+    --band-ink-2: #b9c0c1;
     --viz-computing_ai: #3987e5;
     --viz-materials_manufacturing: #d95926;
     --viz-climate_energy: #199e70;
@@ -38,20 +52,27 @@
     --viz-education_social: #d55181;
     --viz-robotics_hardware: #9085e9;
     --viz-health_bio: #e66767;
-    --viz-other: #6f6c64;
-    --viz-land: #1e1e1a;
+    --viz-other: #6f7778;
+    --viz-land: #1f2526;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0e0e0c;
-  --surface: #171714;
-  --ink: #eeebe3;
-  --ink-2: #a9a59a;
-  --ink-3: #6f6c64;
-  --rule: #2a2925;
-  --accent: #ff7a45;
-  --accent-wash: #2a1810;
+  --paper: #141819;
+  --surface: #1d2223;
+  --ink: #eceeee;
+  --ink-2: #a9b0b1;
+  --ink-3: #7a8283;
+  --rule: #2c3334;
+  --accent: #e8935a;
+  --accent-wash: #33231a;
+  --brick: #e07468;
+  --teal: #5cbdb4;
+  --panel: #1b2021;
+  --wash: #241f19;
+  --band: #0d1011;
+  --band-ink: #ffffff;
+  --band-ink-2: #b9c0c1;
   --viz-computing_ai: #3987e5;
   --viz-materials_manufacturing: #d95926;
   --viz-climate_energy: #199e70;
@@ -59,8 +80,8 @@
   --viz-education_social: #d55181;
   --viz-robotics_hardware: #9085e9;
   --viz-health_bio: #e66767;
-  --viz-other: #6f6c64;
-  --viz-land: #1e1e1a;
+  --viz-other: #6f7778;
+  --viz-land: #1f2526;
   color-scheme: dark;
 }
 
@@ -73,8 +94,16 @@
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-accent-wash: var(--accent-wash);
+  --color-brick: var(--brick);
+  --color-teal: var(--teal);
+  --color-panel: var(--panel);
+  --color-wash: var(--wash);
+  --color-band: var(--band);
+  --color-band-ink: var(--band-ink);
+  --color-band-ink-2: var(--band-ink-2);
   --font-serif: var(--font-newsreader), Georgia, serif;
-  --font-sans: var(--font-inter-tight), system-ui, sans-serif;
+  --font-sans: var(--font-open-sans), system-ui, sans-serif;
+  --font-display: var(--font-open-sans), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
@@ -160,8 +189,21 @@ mark {
 /* Print: funder briefs and shortlists save cleanly as PDF. Always light. */
 @media print {
   :root, :root[data-theme="dark"] {
-    --paper: #ffffff; --surface: #ffffff; --ink: #17160f; --ink-2: #57544b; --ink-3: #6f6b61;
-    --rule: #dcd8ce; --accent: #c2410c; --accent-wash: #fcebe2;
+  --paper: #141819;
+  --surface: #1d2223;
+  --ink: #eceeee;
+  --ink-2: #a9b0b1;
+  --ink-3: #7a8283;
+  --rule: #2c3334;
+  --accent: #e8935a;
+  --accent-wash: #33231a;
+  --brick: #e07468;
+  --teal: #5cbdb4;
+  --panel: #1b2021;
+  --wash: #241f19;
+  --band: #0d1011;
+  --band-ink: #ffffff;
+  --band-ink-2: #b9c0c1;
     --viz-climate_energy: #1baf7a; --viz-ag_food: #eda100; --viz-health_bio: #e34948; --viz-computing_ai: #2a78d6;
     color-scheme: light;
   }
@@ -172,4 +214,31 @@ mark {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .break-inside-avoid, tr, li { break-inside: avoid; }
   a { text-decoration: none !important; }
+}
+
+/* VentureWell brand pass: bold sans headlines and figures, serif kept for record titles. */
+h1.font-serif,
+h2.font-serif,
+.font-serif.tnum,
+.display {
+  font-family: var(--font-open-sans), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+h1.font-serif em,
+h2.font-serif em {
+  font-style: normal;
+  font-weight: 700;
+}
+.label {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.eyebrow {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
 }

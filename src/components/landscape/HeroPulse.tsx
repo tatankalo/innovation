@@ -248,7 +248,7 @@ export default function HeroPulse() {
                 const r = rad(frame.val(u), frame.max) * zp.markScale;
                 const right = u.x! < W * 0.7;
                 return (
-                  <text key={u.id} x={right ? u.x! + r + 6 / zp.k : u.x! - r - 6 / zp.k} y={u.y! + 5 / zp.k} textAnchor={right ? "start" : "end"} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-inter-tight)" }}>
+                  <text key={u.id} x={right ? u.x! + r + 6 / zp.k : u.x! - r - 6 / zp.k} y={u.y! + 5 / zp.k} textAnchor={right ? "start" : "end"} fontSize={15 / zp.k} fontWeight="600" fill="var(--ink)" stroke="var(--paper)" strokeWidth={4 / zp.k} paintOrder="stroke" style={{ fontFamily: "var(--font-open-sans)" }}>
                     {shortName(u.name)}
                   </text>
                 );
