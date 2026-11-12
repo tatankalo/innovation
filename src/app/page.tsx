@@ -6,6 +6,7 @@ import HeroPulse from "@/components/landscape/HeroPulse";
 import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
 import { searchArgs } from "@/lib/searchParams";
+import { getOverview, getReport } from "@/lib/vw";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 }
 
 async function Landing() {
-  const [stats, features] = await Promise.all([rpc<Stats>("site_stats"), rpc<Feature[]>("featured_lineage", { n: 3 }, { cache: false })]);
+  const [stats, features, { data: vw }, { data: climate }, { data: ag }] = await Promise.all([
+    rpc<Stats>("site_stats"),
+    rpc<Feature[]>("featured_lineage", { n: 3 }, { cache: false }),
+    getOverview(),
+    getReport("climate"),
+    getReport("agtech"),
+  ]);
   const figures = [
     { n: num(stats.families), label: "patented inventions", sub: "One per patent family" },
     { n: num(stats.awards), label: "NSF awards", sub: "Research, I-Corps, IUCRC, SBIR, STTR" },
@@ -125,6 +132,45 @@ async function Landing() {
             <div className="mt-1 text-[13px] text-ink-3">{f.sub}</div>
           </div>
         ))}
+      </section>
+
+      <section className="mt-20 grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-start">
+        <div>
+          <p className="label mb-4 text-accent">For VentureWell</p>
+          <h2 className="font-serif text-[34px] leading-[40px] sm:text-[44px] sm:leading-[50px] tracking-[-0.02em]">
+            {num(vw.ready)} NSF-funded inventors are ready for <span className="whitespace-nowrap">I-Corps.</span> <em className="text-ink-2">None holds an <span className="whitespace-nowrap">I-Corps</span> award.</em>
+          </h2>
+          <p className="mt-5 text-[17px] leading-7 text-ink-2 max-w-[52ch]">
+            Each one holds an NSF award and a patent at the same university, with prototype-stage work. {num(vw.msi_ready)} are
+            at HBCUs or in EPSCoR states. Every name comes with a public email and the award that qualifies them.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link href="/venturewell" className="inline-flex items-center h-10 px-4 rounded-[2px] bg-ink text-paper text-[14px] font-medium hover:bg-accent">
+              See the program map →
+            </Link>
+            <Link href="/people" className="inline-flex items-center h-10 px-4 rounded-[2px] border border-rule hover:border-ink text-[14px] font-medium">
+              Recruiting shortlist
+            </Link>
+          </div>
+        </div>
+        <ul className="border-t border-rule">
+          {[
+            { href: "/report/climate", k: "Climate funder brief", n: climate.totals.ready, d: `${money(climate.totals.dollars)} in NSF awards · ${num(climate.totals.patents)} patents` },
+            { href: "/report/agtech", k: "Ag tech funder brief", n: ag.totals.ready, d: `${money(ag.totals.dollars)} in NSF awards · ${num(ag.totals.patents)} patents` },
+            { href: "/people?seg=early", k: "Early movers for E-Teams", n: vw.early, d: "Near-market work, no patent filed yet" },
+            { href: "/people?seg=alumni", k: "I-Corps alumni with patents", n: vw.alumni, d: "Mentors and showcase candidates" },
+          ].map((r) => (
+            <li key={r.href} className="border-b border-rule">
+              <Link href={r.href} className="group grid grid-cols-[1fr_auto] gap-x-6 py-5 items-baseline">
+                <span>
+                  <span className="block text-[17px] font-medium group-hover:text-accent">{r.k}</span>
+                  <span className="block mt-1 text-[13px] text-ink-3">{r.d}</span>
+                </span>
+                <span className="font-serif text-[32px] leading-none tnum">{num(r.n)}<span className="ml-2 text-[14px] text-ink-3 font-sans group-hover:text-accent">→</span></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mt-20">

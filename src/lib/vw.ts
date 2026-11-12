@@ -1,0 +1,208 @@
+import { rpc, supabase } from "@/lib/supabase";
+
+/** Precomputed pitch data. Built by `select vw_refresh();` (vw_people, vw_universities, vw_reports). */
+
+export type Topic = "climate" | "agtech";
+export type Segment = "ready" | "early" | "alumni" | "all";
+
+export const TOPICS: Record<Topic, { label: string; long: string; color: string; funderLine: string }> = {
+  climate: {
+    label: "Climate",
+    long: "Climate and clean energy",
+    color: "var(--viz-climate_energy)",
+    funderLine: "Clean power, storage, carbon, water and adaptation work coming out of US universities.",
+  },
+  agtech: {
+    label: "Ag tech",
+    long: "Agriculture and food",
+    color: "var(--viz-ag_food)",
+    funderLine: "Crop genetics, soil, livestock, precision ag and food systems work coming out of US universities.",
+  },
+};
+
+export const SEGMENTS: Record<Segment, { label: string; short: string; phrase: string; rule: string; use: string }> = {
+  ready: {
+    label: "Ready for I-Corps",
+    short: "Ready for I-Corps",
+    phrase: "ready for I-Corps",
+    rule: "NSF-funded PI or co-PI. Named inventor on a patent from the same university. Prototype-stage work or later. No NSF I-Corps award since 2021.",
+    use: "Recruit into I-Corps cohorts and funder-sponsored accelerators.",
+  },
+  early: {
+    label: "Early movers",
+    short: "Early movers",
+    phrase: "near market, no patent yet",
+    rule: "Near-market NSF work. No patent filed yet. No NSF I-Corps award since 2021.",
+    use: "Invite to E-Team grants and faculty programs before the IP is locked in.",
+  },
+  alumni: {
+    label: "I-Corps alumni with patents",
+    short: "Alumni with patents",
+    phrase: "I-Corps alumni with patents",
+    rule: "Has an NSF I-Corps award since 2021 and is a named inventor on a patent from the same university.",
+    use: "Mentors, showcase speakers and candidates for follow-on funding.",
+  },
+  all: {
+    label: "Everyone",
+    short: "Everyone",
+    phrase: "funded by NSF since 2021",
+    rule: "Every NSF PI and co-PI with a university match since 2021.",
+    use: "Browse the full roster.",
+  },
+};
+
+export type Totals = {
+  awards: number;
+  dollars: number;
+  patents: number;
+  people: number;
+  ready: number;
+  early: number;
+  alumni: number;
+  icorps_people: number;
+  universities: number;
+  msi_ready: number;
+};
+export type Report = {
+  topic: Topic;
+  totals: Totals;
+  by_year: { yr: number; awards: number; dollars: number; patents: number }[];
+  subs: { sub: string; awards: number; dollars: number; patents: number }[];
+  programs: Record<string, number>;
+  readiness: number[];
+  top_unis: {
+    id: number;
+    name: string;
+    state: string | null;
+    hbcu: boolean | null;
+    epscor: boolean;
+    awards: number;
+    dollars: number;
+    patents: number;
+    ready: number;
+    people: number;
+    icorps_awards: number;
+  }[];
+  states: Record<string, number>;
+};
+
+export type UniRow = {
+  id: number;
+  name: string;
+  state: string | null;
+  hbcu?: boolean | null;
+  epscor?: boolean;
+  research_awards?: number;
+  research_dollars?: number;
+  icorps_awards: number;
+  iucrc_awards?: number;
+  iucrc_dollars?: number;
+  ready_people: number;
+  ready_climate?: number;
+  ready_agtech?: number;
+  families: number;
+};
+export type Overview = {
+  people: number;
+  with_email: number;
+  inventor_pis: number;
+  ready: number;
+  ready_recent: number;
+  early: number;
+  alumni: number;
+  icorps_people: number;
+  msi_ready: number;
+  universities: number;
+  unis_ready_no_icorps: number;
+  iucrc_unis: number;
+  iucrc_awards: number;
+  iucrc_dollars: number;
+  icorps_awards: number;
+  epscor_unis: number;
+  hbcu_unis: number;
+  untapped: UniRow[];
+  iucrc: UniRow[];
+  msi: UniRow[];
+};
+
+export type Person = {
+  pid: number;
+  name: string;
+  email: string | null;
+  is_pi: boolean;
+  university_id: number;
+  university: string;
+  state: string | null;
+  n_awards: number;
+  total_dollars: number | null;
+  last_award: string | null;
+  has_icorps: boolean;
+  has_iucrc: boolean;
+  has_sbir: boolean;
+  n_climate: number;
+  n_agtech: number;
+  max_readiness: number | null;
+  n_patents: number;
+  last_patent: string | null;
+  any_grant: boolean;
+  sector: string | null;
+  climate_subs: string[] | null;
+  ag_subs: string[] | null;
+  hbcu: boolean | null;
+  epscor: boolean;
+  award_id: string | null;
+  award_title: string | null;
+};
+
+const cache = new Map<string, { at: number; data: unknown }>();
+const TTL = 10 * 60 * 1000;
+
+async function readReport<T>(topic: string): Promise<{ data: T; refreshed_at: string }> {
+  const hit = cache.get(topic);
+  if (hit && Date.now() - hit.at < TTL) return hit.data as { data: T; refreshed_at: string };
+  const { data, error } = await supabase.from("vw_reports").select("data,refreshed_at").eq("topic", topic).single();
+  if (error) throw new Error(`vw_reports: ${error.message}`);
+  cache.set(topic, { at: Date.now(), data });
+  return data as { data: T; refreshed_at: string };
+}
+
+export const getOverview = () => readReport<Overview>("overview");
+export const getReport = (t: Topic) => readReport<Report>(t);
+
+export type ShortlistArgs = { topic: Topic | "all"; seg: Segment; st?: string | null; uni?: number | null; msi?: boolean; lim?: number; off?: number };
+export function getShortlist(a: ShortlistArgs, opts: { cache?: boolean } = {}) {
+  return rpc<{ total: number; rows: Person[] }>(
+    "vw_shortlist",
+    { topic: a.topic, seg: a.seg, st: a.st ?? null, uni: a.uni ?? null, msi: !!a.msi, lim: a.lim ?? 50, off: a.off ?? 0 },
+    opts
+  );
+}
+
+export function parseTopic(v?: string | null): Topic | "all" {
+  return v === "climate" || v === "agtech" ? v : "all";
+}
+export function parseSegment(v?: string | null): Segment {
+  return v === "early" || v === "alumni" || v === "all" ? v : "ready";
+}
+
+/** NSF awardee names arrive as legal entities ("... Board of Trustees", "... Research Inc"). Shorten for display. */
+export function uniLabel(name: string) {
+  let n = name
+    .replace(/^The\s+/i, "")
+    .replace(/^Regents of the\s+/i, "")
+    .replace(/,\s*The$/i, "")
+    .replace(/\s+Board of (Trustees|Regents)$/i, "")
+    .replace(/\s+Center for Research Inc$/i, "")
+    .replace(/\s+Research Foundation$/i, "")
+    .replace(/,?\s+Inc\.?$/i, "")
+    .replace(/\s+University Park$/i, "")
+    .replace(/^Pennsylvania State Univ\b/, "Penn State")
+    .replace(/^Northwestern University at Chicago$/, "Northwestern University")
+    .trim();
+  if (n === n.toUpperCase()) n = n.toLowerCase().replace(/(^|[\s\-])([a-z])/g, (_, a, b) => a + b.toUpperCase()).replace(/\b(Of|At|And|The)\b/g, (w) => w.toLowerCase());
+  return n;
+}
+
+export function pct(a: number, b: number) {
+  return b ? Math.round((a / b) * 100) : 0;
+}

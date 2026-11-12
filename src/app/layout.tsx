@@ -33,7 +33,8 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
               <Link href="/?l=climate&o=readiness" className="hover:text-ink hidden md:inline">Climate</Link>
               <Link href="/?l=agtech&o=readiness" className="hover:text-ink hidden md:inline">Ag tech</Link>
               <Link href="/landscape" className="hover:text-ink">Landscape</Link>
-              <Link href="/universities" className="hover:text-ink hidden sm:inline">Universities</Link>
+              <Link href="/venturewell" className="hover:text-ink font-semibold text-ink">For VentureWell</Link>
+              <Link href="/universities" className="hover:text-ink hidden lg:inline">Universities</Link>
               <ThemeToggle />
             </nav>
           </div>
