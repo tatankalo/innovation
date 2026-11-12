@@ -255,6 +255,11 @@ export const LIST_TOPICS: [ListTopic, string][] = [
   ["ocean", "Ocean"],
   ["opensource", "Open source"],
 ];
+/** A university id from the `uni` query param, or null. */
+export function parseUni(v?: string | null): number | null {
+  const n = v && /^\d{1,9}$/.test(v) ? Number(v) : 0;
+  return n > 0 ? n : null;
+}
 export function parseSegment(v?: string | null): Segment {
   return v === "early" || v === "alumni" || v === "all" ? v : "ready";
 }

@@ -1,5 +1,5 @@
 import { LENSES, nsfUrl, READINESS, readinessLevel, SECTORS } from "@/lib/format";
-import { getShortlist, parseSegment, parseTopic, uniLabel, VW_SUBS } from "@/lib/vw";
+import { getShortlist, parseSegment, parseTopic, parseUni, uniLabel, VW_SUBS } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -20,11 +20,12 @@ export async function GET(req: Request) {
   const topic = parseTopic(url.searchParams.get("topic"));
   const seg = parseSegment(url.searchParams.get("seg"));
   const msi = url.searchParams.get("msi") === "1";
+  const uni = parseUni(url.searchParams.get("uni"));
 
   const rows = [];
   let total = 0;
   for (let off = 0; off < CAP; off += PAGE) {
-    const res = await getShortlist({ topic, seg, msi, lim: PAGE, off }, { cache: false });
+    const res = await getShortlist({ topic, seg, msi, uni, lim: PAGE, off }, { cache: false });
     total = res.total;
     rows.push(...res.rows);
     if (res.rows.length < PAGE || rows.length >= total) break;
@@ -70,7 +71,7 @@ export async function GET(req: Request) {
     );
   }
   const day = new Date().toISOString().slice(0, 10);
-  const slug = [seg, topic, msi ? "msi-epscor" : ""].filter(Boolean).join("-");
+  const slug = [seg, topic, msi ? "msi-epscor" : "", uni ? `university-${uni}` : ""].filter(Boolean).join("-");
   return new Response("﻿" + lines.join("\r\n") + "\r\n", {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",

@@ -3,7 +3,8 @@ import PeopleTable from "@/components/vw/PeopleTable";
 import PrintButton from "@/components/vw/PrintButton";
 import { Meta } from "@/components/ui";
 import { num } from "@/lib/format";
-import { getShortlist, LIST_TOPICS, parseSegment, parseTopic, SEGMENTS, type Segment } from "@/lib/vw";
+import { rpc } from "@/lib/supabase";
+import { getShortlist, LIST_TOPICS, parseSegment, parseTopic, parseUni, SEGMENTS, uniLabel, type Segment } from "@/lib/vw";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -21,9 +22,14 @@ export default async function People({ searchParams }: { searchParams: Promise<S
   const seg = parseSegment(one(sp.seg));
   const msi = one(sp.msi) === "1";
   const page = Math.max(1, Number(one(sp.p) ?? 1) || 1);
-  const res = await getShortlist({ topic, seg, msi, lim: PER, off: (page - 1) * PER });
+  const uni = parseUni(one(sp.uni));
+  const [res, unis] = await Promise.all([
+    getShortlist({ topic, seg, msi, uni, lim: PER, off: (page - 1) * PER }),
+    uni ? rpc<{ id: number; name: string }[]>("list_universities") : null,
+  ]);
+  const uniName = uni ? uniLabel(res.rows[0]?.university ?? unis?.find((u) => u.id === uni)?.name ?? `University ${uni}`) : null;
 
-  const href = (o: Partial<{ topic: string; seg: Segment; msi: boolean; p: number }>) => {
+  const href = (o: Partial<{ topic: string; seg: Segment; msi: boolean; uni: number | null; p: number }>) => {
     const n = new URLSearchParams();
     const tt = o.topic ?? topic;
     const ss = o.seg ?? seg;
@@ -31,11 +37,13 @@ export default async function People({ searchParams }: { searchParams: Promise<S
     if (tt !== "all") n.set("topic", tt);
     if (ss !== "ready") n.set("seg", ss);
     if (mm) n.set("msi", "1");
+    const uu = o.uni === undefined ? uni : o.uni;
+    if (uu) n.set("uni", String(uu));
     if (o.p && o.p > 1) n.set("p", String(o.p));
     const s = n.toString();
     return s ? `/people?${s}` : "/people";
   };
-  const csv = `/api/people?topic=${topic}&seg=${seg}${msi ? "&msi=1" : ""}`;
+  const csv = `/api/people?topic=${topic}&seg=${seg}${msi ? "&msi=1" : ""}${uni ? `&uni=${uni}` : ""}`;
   const tab = (active: boolean) =>
     active ? "font-semibold text-ink border-b-2 border-accent pb-1" : "text-ink-2 hover:text-ink pb-1";
 
@@ -47,6 +55,20 @@ export default async function People({ searchParams }: { searchParams: Promise<S
       </h1>
       <p className="mt-4 text-[17px] leading-7 text-ink-2 max-w-[680px]">{SEGMENTS[seg].rule}</p>
       <p className="mt-1 text-[15px] leading-7 text-ink-3 max-w-[680px]">Use: {SEGMENTS[seg].use}</p>
+
+      {uni && (
+        <p className="mt-6 flex items-center gap-3 flex-wrap text-[14px]">
+          <span className="label">University</span>
+          <span className="inline-flex items-center gap-2 h-8 pl-3 pr-1 rounded-[2px] border border-accent bg-accent-wash font-semibold">
+            {uniName}
+            <Link href={href({ uni: null })} scroll={false} aria-label={`Clear the university filter: ${uniName}`} className="no-print inline-flex items-center justify-center w-6 h-6 rounded-[2px] text-ink-2 hover:text-ink hover:bg-surface">
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden><path d="M1 1l8 8M9 1l-8 8" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
+            </Link>
+          </span>
+          <Link href={`/university/${uni}`} className="no-print text-ink-2 hover:text-accent underline decoration-rule underline-offset-4">University page</Link>
+          <Link href={href({ uni: null })} scroll={false} className="no-print text-ink-2 hover:text-accent underline decoration-rule underline-offset-4">Show all universities</Link>
+        </p>
+      )}
 
       <div className="mt-10 space-y-4 no-print">
         <div className="flex gap-6 flex-wrap text-[14px]">

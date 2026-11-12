@@ -242,3 +242,69 @@ h2.font-serif em {
   text-transform: uppercase;
   color: var(--accent);
 }
+
+/* Landing: The Shelf. One spine per inventor. Orange spines (through I-Corps) slide out on load. */
+.spine {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 2px 2px 0 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 9%, transparent);
+  outline-offset: 1px;
+}
+.spine::before,
+.spine::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.spine::before { top: 7px; }
+.spine::after { bottom: 7px; }
+.spine > span {
+  writing-mode: vertical-rl;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 11.5px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.spine-out {
+  transform: translateY(-22px);
+  box-shadow: 0 22px 0 0 color-mix(in srgb, var(--accent) 16%, transparent);
+  animation: spine-out 700ms cubic-bezier(.2,.8,.2,1) both;
+}
+.spine-out > span { font-weight: 600; }
+.spine-on,
+.spine:focus-visible {
+  outline: 2px solid var(--ink);
+  z-index: 1;
+}
+@keyframes spine-out {
+  from { transform: none; box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Landing: the Pioneer map. Spikes rise west to east when the map scrolls into view. */
+.spikes .spike {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.spikes[data-state="armed"] .spike { transform: scaleY(0); }
+.spikes[data-state="armed"] .spike-labels { opacity: 0; }
+.spikes[data-state="in"] .spike {
+  transition: transform 900ms cubic-bezier(.2,.8,.2,1) var(--d, 0ms), fill-opacity 150ms ease-out;
+}
+.spikes[data-state="in"] .spike-labels { transition: opacity 500ms ease-out 1300ms; }
+.spikes a:focus-visible .spike { stroke: var(--ink); stroke-width: 2px; fill-opacity: 0.95; }
+@media (prefers-reduced-motion: reduce) {
+  .spine-out { animation: none; }
+  .spikes .spike { transform: none !important; transition: none !important; }
+  .spikes .spike-labels { opacity: 1 !important; transition: none !important; }
+}

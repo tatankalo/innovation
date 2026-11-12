@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Suspense } from "react";
 import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
-import HeroPulse from "@/components/landscape/HeroPulse";
+import Shelf, { ShelfCount } from "@/components/landing/Shelf";
+import PioneerMap from "@/components/landing/PioneerMap";
 import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
 import { PaperList, type Paper } from "@/components/Publications";
 import { searchArgs } from "@/lib/searchParams";
-import { getOverview, getReport } from "@/lib/vw";
+import { getReport } from "@/lib/vw";
+import { getShelf } from "@/lib/landing";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -80,15 +82,15 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 }
 
 async function Landing() {
-  const [stats, features, { data: vw }, { data: climate }, { data: ag }, { data: health }, { data: ocean }] = await Promise.all([
+  const [stats, features, { data: climate }, { data: ag }, { data: health }, { data: ocean }] = await Promise.all([
     rpc<Stats>("site_stats"),
     rpc<Feature[]>("featured_lineage", { n: 3 }, { cache: false }),
-    getOverview(),
     getReport("climate"),
     getReport("agtech"),
     getReport("health"),
     getReport("ocean"),
   ]);
+  const shelf = getShelf();
   const figures = [
     { n: num(stats.families), label: "patented inventions", sub: "One per patent family" },
     { n: num(stats.awards), label: "NSF awards", sub: "Research, I-Corps, IUCRC, SBIR, STTR" },
@@ -97,20 +99,22 @@ async function Landing() {
   ];
   return (
     <div className="mx-auto max-w-[1120px] px-4 sm:px-8">
-      <section className="pt-12 sm:pt-20 pb-10">
-        <p className="label mb-6">University technology since 2021</p>
-        <h1 className="font-serif text-[44px] leading-[48px] sm:text-[68px] sm:leading-[70px] tracking-[-0.02em] max-w-[900px]">
-          Find the inventions NSF funded <em className="text-ink-2">before</em> someone else does.
+      <Shelf rows={shelf.rows} open={shelf.open} visible={shelf.visible} counts={shelf.counts}>
+        <p className="eyebrow mb-4">The shelf · {num(shelf.totals.inventors)} NSF-funded inventors</p>
+        <h1 className="font-serif text-[40px] leading-[44px] sm:text-[60px] sm:leading-[62px] tracking-[-0.025em]">
+          {num(shelf.totals.never)} inventors. <em className="text-accent sm:block">Still on the shelf.</em>
         </h1>
-        <p className="mt-6 text-[19px] leading-8 text-ink-2 max-w-[620px]">
-          One search across NSF awards and university patents. Describe a problem in plain English. Unshelved finds the
-          labs, the patents and the people behind them.
+        <p className="mt-5 text-[17px] leading-7 text-ink-2 max-w-[600px]">
+          {num(shelf.totals.inventors)} inventors hold an NSF award and a patent at the same university. {num(shelf.totals.never)} have
+          never been through <span className="whitespace-nowrap">I-Corps.</span> Below, <ShelfCount counts={shelf.counts} k="total" /> drawn
+          at random. Every spine is a real patent.
         </p>
-        <div className="mt-10 max-w-[760px]">
+        <div className="mt-7 max-w-[640px]">
+          <p className="mb-2 text-[14px] font-semibold">Search NSF awards and university patents in plain English.</p>
           <Suspense>
             <SearchBox autoFocus />
           </Suspense>
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[14px] text-ink-3">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[14px] text-ink-3">
             <span>Try</span>
             {EXAMPLES.map((e) => (
               <Link key={e} href={`/?q=${encodeURIComponent(e)}`} className="text-ink-2 hover:text-accent underline decoration-rule underline-offset-4">
@@ -118,45 +122,21 @@ async function Landing() {
               </Link>
             ))}
           </div>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap gap-3">
             <LensLink href="/?l=climate&o=readiness" label="Climate lens" n={stats.climate} />
             <LensLink href="/?l=agtech&o=readiness" label="Ag tech lens" n={stats.agtech} />
           </div>
         </div>
-      </section>
+      </Shelf>
 
-      <HeroPulse />
+      <PioneerMap />
 
-      <section className="mt-14 grid grid-cols-2 lg:grid-cols-4 border-t border-rule">
-        {figures.map((f, i) => (
-          <div key={f.label} className={`py-8 pr-6 ${i % 2 ? "pl-6 border-l border-rule" : ""} ${i === 2 ? "lg:pl-6 lg:border-l border-rule" : ""} ${i > 1 ? "border-t lg:border-t-0 border-rule" : ""}`}>
-            <div className={`font-serif text-[40px] sm:text-[52px] leading-none tracking-[-0.02em] tnum ${f.accent ? "text-accent" : ""}`}>{f.n}</div>
-            <div className="mt-3 text-[15px] font-medium">{f.label}</div>
-            <div className="mt-1 text-[13px] text-ink-3">{f.sub}</div>
-          </div>
-        ))}
-      </section>
-
-      <section className="mt-20 grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-16 items-start">
-        <div>
-          <p className="label mb-4 text-accent">For VentureWell</p>
-          <h2 className="font-serif text-[34px] leading-[40px] sm:text-[44px] sm:leading-[50px] tracking-[-0.02em]">
-            {num(vw.ready)} NSF-funded inventors could lead Pioneer teams. <em className="text-ink-2">None has been through <span className="whitespace-nowrap">I-Corps.</span></em>
-          </h2>
-          <p className="mt-5 text-[17px] leading-7 text-ink-2 max-w-[52ch]">
-            Each one holds an NSF award and a patent at the same university, with prototype-stage work. {num(vw.msi_ready)} are
-            at HBCUs or in EPSCoR states. Every name comes with a public email and the award that qualifies them.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Link href="/venturewell" className="inline-flex items-center h-10 px-4 rounded-[2px] bg-ink text-paper text-[14px] font-medium hover:bg-accent">
-              See the program map →
-            </Link>
-            <Link href="/people" className="inline-flex items-center h-10 px-4 rounded-[2px] border border-rule hover:border-ink text-[14px] font-medium">
-              Recruiting shortlist
-            </Link>
-          </div>
+      <section className="mt-12">
+        <div className="flex items-baseline justify-between border-b border-rule pb-3">
+          <h2 className="label">Funder briefs</h2>
+          <span className="text-[13px] text-ink-3">Potential team leads by topic</span>
         </div>
-        <ul className="border-t border-rule">
+        <ul className="grid sm:grid-cols-2 gap-x-12">
           {[
             { href: "/report/climate", k: "Climate funder brief", n: climate.totals.ready, d: `${money(climate.totals.dollars)} in NSF awards · ${num(climate.totals.patents)} patents` },
             { href: "/report/agtech", k: "Ag tech funder brief", n: ag.totals.ready, d: `${money(ag.totals.dollars)} in NSF awards · ${num(ag.totals.patents)} patents` },
@@ -174,6 +154,16 @@ async function Landing() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="mt-16 grid grid-cols-2 lg:grid-cols-4 border-t border-rule">
+        {figures.map((f, i) => (
+          <div key={f.label} className={`py-8 pr-6 ${i % 2 ? "pl-6 border-l border-rule" : ""} ${i === 2 ? "lg:pl-6 lg:border-l border-rule" : ""} ${i > 1 ? "border-t lg:border-t-0 border-rule" : ""}`}>
+            <div className={`font-serif text-[40px] sm:text-[52px] leading-none tracking-[-0.02em] tnum ${f.accent ? "text-accent" : ""}`}>{f.n}</div>
+            <div className="mt-3 text-[15px] font-medium">{f.label}</div>
+            <div className="mt-1 text-[13px] text-ink-3">{f.sub}</div>
+          </div>
+        ))}
       </section>
 
       <section className="mt-20">
