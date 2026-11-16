@@ -91,8 +91,16 @@ export function titleCase(s: string) {
     .replace(/(^|[\s\-'])([a-z])/g, (_, a, b) => a + b.toUpperCase());
 }
 
+/** Google Patents wants US application numbers as year plus a 7-digit serial (US20210002602A1).
+ *  Our data stores them with a 6-digit serial (US-2021002602-A1), so pad it. Design and reissue
+ *  kinds need a 1 (S1, E1). Granted and plant numbers pass through with the dashes removed. */
 export function googlePatentUrl(pub: string) {
-  return `https://patents.google.com/patent/${pub.replace(/-/g, "")}`;
+  const id = pub
+    .trim()
+    .replace(/^US-(\d{4})(\d{6})-/, "US-$10$2-")
+    .replace(/-(S|E)$/, "-$11") // design and reissue kinds: S -> S1, E -> E1
+    .replace(/-/g, "");
+  return `https://patents.google.com/patent/${id}/en`;
 }
 export function nsfUrl(id: string) {
   return `https://www.nsf.gov/awardsearch/showAward?AWD_ID=${id}`;
