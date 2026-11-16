@@ -156,8 +156,9 @@ export default function PipelineHero() {
         NSF has already paid for the research. <em className="text-brick sm:block">Here is where it leaks out.</em>
       </h1>
       <p className="mt-5 text-[18px] leading-7 text-ink-2 max-w-[62ch]">
-        Follow {num(ALL.researchers)} NSF-funded researchers toward a startup. Most inventors drop out at two points, and
-        VentureWell has a program for each.
+        Follow {num(ALL.researchers)} NSF-funded researchers toward a startup. These are faculty named as lead or co-lead on
+        an NSF research, I-Corps or IUCRC grant at 267 U.S. universities since 2021. Most inventors drop out at two points,
+        and VentureWell has a program for each.
       </p>
 
       {/* Filters */}
@@ -231,8 +232,9 @@ export default function PipelineHero() {
                 </text>
               )}
               {i === 0 && (
-                <text x={XS[i]} y={103} fontSize={14} fill="var(--ink-2)">
-                  NSF awards 2021 to 2026
+                <text x={XS[i]} y={101} fontSize={14} fill="var(--ink-2)">
+                  <tspan x={XS[i]}>Faculty leading NSF grants</tspan>
+                  <tspan x={XS[i]} dy={17}>at 267 universities, 2021 to 2026</tspan>
                 </text>
               )}
             </g>
@@ -327,6 +329,7 @@ export default function PipelineHero() {
                     <div className="w-10 border-t-2 border-dashed border-ink-3" />
                   )}
                 </div>
+                {i === 0 && <p className="mt-1.5 text-[13px] leading-5 text-ink-2">Faculty leading NSF grants at 267 universities, 2021 to 2026</p>}
                 {rates[i] && (
                   <p className="mt-1.5 text-[13px] leading-5 text-ink-2">
                     <span className={rates[i].small ? "opacity-45" : ""}>{rates[i].text}</span>
