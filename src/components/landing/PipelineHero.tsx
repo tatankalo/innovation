@@ -231,6 +231,11 @@ export default function PipelineHero() {
                   {rates[i].small && <tspan fontWeight={700}> · small sample</tspan>}
                 </text>
               )}
+              {i === 3 && (
+                <text x={XS[i]} y={120} fontSize={14} fill="var(--ink-2)">
+                  NSF only. A floor, not a total.
+                </text>
+              )}
               {i === 0 && (
                 <text x={XS[i]} y={101} fontSize={14} fill="var(--ink-2)">
                   <tspan x={XS[i]}>Faculty leading NSF grants</tspan>
@@ -336,6 +341,7 @@ export default function PipelineHero() {
                     {rates[i].small && <span className="font-bold"> · small sample</span>}
                   </p>
                 )}
+                {i === 3 && <p className="text-[13px] leading-5 text-ink-2">NSF only. A floor, not a total.</p>}
                 {href && (
                   <Link href={href} className="mt-1 inline-block text-[14px] font-bold text-accent hover:underline">
                     See the startups →
@@ -345,6 +351,44 @@ export default function PipelineHero() {
             </div>
           );
         })}
+      </div>
+
+      {/* What the numbers count */}
+      <div className="mt-10 border-t border-rule pt-6 break-inside-avoid">
+        <h2 className="label">What these numbers count</h2>
+        <dl className="mt-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-5 text-[14px] leading-6 text-ink-2">
+          <div>
+            <dt className="font-bold text-ink">NSF-funded researchers</dt>
+            <dd>Faculty named as lead or co-lead on an NSF research, I-Corps or IUCRC grant since 2021. Students and postdocs are not in this count.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Named on a university patent</dt>
+            <dd>The same person appears as an inventor on a US patent or application filed by their university since 2021.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Through I-Corps</dt>
+            <dd>The inventor holds an NSF I-Corps award as lead or co-lead. Team members on someone else&apos;s award are not counted.</dd>
+          </div>
+          <div>
+            <dt className="font-bold text-ink">Also lead an NSF SBIR/STTR award</dt>
+            <dd>
+              The same inventor leads an NSF SBIR or STTR company award in their state. This is a narrow, strict count, not all university startups.
+            </dd>
+          </div>
+        </dl>
+        <div className="mt-6 bg-accent-wash rounded-[2px] p-5 text-[14px] leading-6 text-ink-2 max-w-[90ch]">
+          <p className="font-bold text-ink">Why so few at the last step?</p>
+          <p className="mt-1">
+            NSF made 2,147 SBIR and STTR awards to 1,760 companies over the same years. Our data links 346 of those companies to a
+            researcher at one of these universities. The last step counts only the faculty inventors who also went through I-Corps and lead an
+            NSF SBIR or STTR award themselves. Three things keep the number low: only NSF&apos;s program is loaded so far (NIH, DOE,
+            DoD and other agencies make most SBIR awards), student and postdoc founders do not appear, and people are matched by
+            name. Adding other agencies and VentureWell&apos;s own cohort records would turn this floor into a real total.
+          </p>
+          <p className="mt-2 font-bold no-print">
+            <Link href="/startups" className="text-accent hover:underline underline-offset-4">See all 346 linked startups →</Link>
+          </p>
+        </div>
       </div>
 
       {/* What if */}
@@ -424,10 +468,10 @@ export default function PipelineHero() {
             </div>
             <div className="border-t-2 border-accent pt-3">
               <div className="display tnum text-[44px] leading-none text-accent">{startupsText}</div>
-              <p className="mt-2 text-[15px] leading-5 font-semibold">expected startups at today&rsquo;s rate</p>
+              <p className="mt-2 text-[15px] leading-5 font-semibold">expected NSF SBIR/STTR leads at today&rsquo;s rate</p>
               <p className="mt-1.5 text-[13px] leading-5 text-ink-2">
                 {ownRate
-                  ? `Today ${num(rateFrom.inv_icorps_startup)} of ${num(rateFrom.inv_icorps)} I-Corps inventors are tied to a startup.`
+                  ? `Today ${num(rateFrom.inv_icorps_startup)} of ${num(rateFrom.inv_icorps)} I-Corps inventors lead an NSF SBIR/STTR award.`
                   : "Too few I-Corps inventors here, so using the all-university rate."}
               </p>
             </div>

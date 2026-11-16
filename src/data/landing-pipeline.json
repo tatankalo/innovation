@@ -21,7 +21,7 @@
   },
   {
    "key": "inv_icorps_startup",
-   "label": "Tied to an SBIR/STTR startup"
+   "label": "Also lead an NSF SBIR/STTR award"
   }
  ],
  "leaks": [
@@ -41,7 +41,7 @@
    ],
    "program": "Propel and Aspire",
    "label": "Propel and Aspire's market",
-   "body": "I-Corps alumni with no startup yet"
+   "body": "I-Corps alumni with no NSF SBIR/STTR award yet"
   }
  ],
  "filters": [
