@@ -1,0 +1,185 @@
+{
+ "generated": "2026-11-16",
+ "source": "NSF Award Search 2021-2026, Google Patents Public Datasets, NSF SBIR/STTR; people matched by name",
+ "goals": {
+  "innovators": 30000,
+  "catalysts": 10000,
+  "year": 2031
+ },
+ "stages": [
+  {
+   "key": "researchers",
+   "label": "NSF-funded researchers"
+  },
+  {
+   "key": "inventors",
+   "label": "Named on a university patent"
+  },
+  {
+   "key": "inv_icorps",
+   "label": "Through I-Corps"
+  },
+  {
+   "key": "inv_icorps_startup",
+   "label": "Tied to an SBIR/STTR startup"
+  }
+ ],
+ "leaks": [
+  {
+   "between": [
+    "inventors",
+    "inv_icorps"
+   ],
+   "program": "Pioneer",
+   "label": "Pioneer's market",
+   "body": "Inventors who never reached I-Corps"
+  },
+  {
+   "between": [
+    "inv_icorps",
+    "inv_icorps_startup"
+   ],
+   "program": "Propel and Aspire",
+   "label": "Propel and Aspire's market",
+   "body": "I-Corps alumni with no startup yet"
+  }
+ ],
+ "filters": [
+  {
+   "key": "all",
+   "label": "All universities",
+   "group": "scope",
+   "researchers": 49788,
+   "inventors": 6058,
+   "inv_icorps": 641,
+   "inv_icorps_startup": 18,
+   "inv_startup_no_icorps": 38,
+   "icorps_any": 1337,
+   "startup_any": 86
+  },
+  {
+   "key": "R1",
+   "label": "R1",
+   "group": "type",
+   "researchers": 45258,
+   "inventors": 5784,
+   "inv_icorps": 584,
+   "inv_icorps_startup": 12,
+   "inv_startup_no_icorps": 38,
+   "icorps_any": 1136,
+   "startup_any": 75
+  },
+  {
+   "key": "R2",
+   "label": "R2",
+   "group": "type",
+   "researchers": 3732,
+   "inventors": 257,
+   "inv_icorps": 49,
+   "inv_icorps_startup": 6,
+   "inv_startup_no_icorps": 0,
+   "icorps_any": 144,
+   "startup_any": 11
+  },
+  {
+   "key": "small",
+   "label": "Smaller schools",
+   "group": "type",
+   "researchers": 798,
+   "inventors": 17,
+   "inv_icorps": 8,
+   "inv_icorps_startup": 0,
+   "inv_startup_no_icorps": 0,
+   "icorps_any": 57,
+   "startup_any": 0
+  },
+  {
+   "key": "epscor",
+   "label": "EPSCoR states",
+   "group": "access",
+   "researchers": 8846,
+   "inventors": 778,
+   "inv_icorps": 87,
+   "inv_icorps_startup": 3,
+   "inv_startup_no_icorps": 3,
+   "icorps_any": 195,
+   "startup_any": 9
+  },
+  {
+   "key": "hbcu",
+   "label": "HBCUs",
+   "group": "access",
+   "researchers": 580,
+   "inventors": 38,
+   "inv_icorps": 4,
+   "inv_icorps_startup": 0,
+   "inv_startup_no_icorps": 0,
+   "icorps_any": 15,
+   "startup_any": 0
+  },
+  {
+   "key": "sec:ai",
+   "label": "Artificial intelligence",
+   "group": "sector",
+   "researchers": 5714,
+   "inventors": 939,
+   "inv_icorps": 61,
+   "inv_icorps_startup": 3,
+   "inv_startup_no_icorps": 4,
+   "icorps_any": 125,
+   "startup_any": 11
+  },
+  {
+   "key": "sec:materials",
+   "label": "Advanced materials",
+   "group": "sector",
+   "researchers": 3117,
+   "inventors": 1067,
+   "inv_icorps": 77,
+   "inv_icorps_startup": 2,
+   "inv_startup_no_icorps": 10,
+   "icorps_any": 108,
+   "startup_any": 13
+  },
+  {
+   "key": "sec:quantum",
+   "label": "Quantum",
+   "group": "sector",
+   "researchers": 1754,
+   "inventors": 365,
+   "inv_icorps": 15,
+   "inv_icorps_startup": 0,
+   "inv_startup_no_icorps": 1,
+   "icorps_any": 25,
+   "startup_any": 4
+  },
+  {
+   "key": "sec:biotech",
+   "label": "Biotechnology",
+   "group": "sector",
+   "researchers": 1079,
+   "inventors": 352,
+   "inv_icorps": 19,
+   "inv_icorps_startup": 1,
+   "inv_startup_no_icorps": 3,
+   "icorps_any": 35,
+   "startup_any": 5
+  },
+  {
+   "key": "sec:minerals",
+   "label": "Critical minerals",
+   "group": "sector",
+   "researchers": 398,
+   "inventors": 98,
+   "inv_icorps": 7,
+   "inv_icorps_startup": 0,
+   "inv_startup_no_icorps": 0,
+   "icorps_any": 9,
+   "startup_any": 0
+  }
+ ],
+ "notes": {
+  "inv_startup_no_icorps": "Inventors tied to a startup without an I-Corps award (they skipped a step)",
+  "startup_any": "All NSF-funded researchers tied to a startup, any path"
+ }
+}

@@ -188,22 +188,22 @@ mark {
 
 /* Print: funder briefs and shortlists save cleanly as PDF. Always light. */
 @media print {
-  :root, :root[data-theme="dark"] {
-  --paper: #141819;
-  --surface: #1d2223;
-  --ink: #eceeee;
-  --ink-2: #a9b0b1;
-  --ink-3: #7a8283;
-  --rule: #2c3334;
-  --accent: #e8935a;
-  --accent-wash: #33231a;
-  --brick: #e07468;
-  --teal: #5cbdb4;
-  --panel: #1b2021;
-  --wash: #241f19;
-  --band: #0d1011;
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --ink: #2a3132;
+  --ink-2: #565d5f;
+  --ink-3: #7b8284;
+  --rule: #e1e3e3;
+  --accent: #b8581c;
+  --accent-wash: #fbeee3;
+  --brick: #b2483f;
+  --teal: #2b7d76;
+  --panel: #efefed;
+  --wash: #faf3ea;
+  --band: #5f6668;
   --band-ink: #ffffff;
-  --band-ink-2: #b9c0c1;
+  --band-ink-2: #dfe2e2;
     --viz-climate_energy: #1baf7a; --viz-ag_food: #eda100; --viz-health_bio: #e34948; --viz-computing_ai: #2a78d6;
     color-scheme: light;
   }

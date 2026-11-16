@@ -2,14 +2,13 @@ import Link from "next/link";
 import { Suspense } from "react";
 import SearchBox from "@/components/SearchBox";
 import Filters from "@/components/Filters";
-import Shelf, { ShelfCount } from "@/components/landing/Shelf";
+import PipelineHero from "@/components/landing/PipelineHero";
 import PioneerMap from "@/components/landing/PioneerMap";
 import { Email, Highlight, LineageBadge, Meta, ProgramTag, ReadinessBadge, SectionLabel, TopicChip } from "@/components/ui";
 import { awardSnippets, rpc } from "@/lib/supabase";
 import { PaperList, type Paper } from "@/components/Publications";
 import { searchArgs } from "@/lib/searchParams";
 import { getReport } from "@/lib/vw";
-import { getShelf } from "@/lib/landing";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -90,7 +89,6 @@ async function Landing() {
     getReport("health"),
     getReport("ocean"),
   ]);
-  const shelf = getShelf();
   const figures = [
     { n: num(stats.families), label: "patented inventions", sub: "One per patent family" },
     { n: num(stats.awards), label: "NSF awards", sub: "Research, I-Corps, IUCRC, SBIR, STTR" },
@@ -99,35 +97,26 @@ async function Landing() {
   ];
   return (
     <div className="mx-auto max-w-[1120px] px-4 sm:px-8">
-      <Shelf rows={shelf.rows} open={shelf.open} visible={shelf.visible} counts={shelf.counts}>
-        <p className="eyebrow mb-4">The shelf · {num(shelf.totals.inventors)} NSF-funded inventors</p>
-        <h1 className="font-serif text-[40px] leading-[44px] sm:text-[60px] sm:leading-[62px] tracking-[-0.025em]">
-          {num(shelf.totals.never)} inventors. <em className="text-accent sm:block">Still on the shelf.</em>
-        </h1>
-        <p className="mt-5 text-[17px] leading-7 text-ink-2 max-w-[600px]">
-          {num(shelf.totals.inventors)} inventors hold an NSF award and a patent at the same university. {num(shelf.totals.never)} have
-          never been through <span className="whitespace-nowrap">I-Corps.</span> Below, <ShelfCount counts={shelf.counts} k="total" /> drawn
-          at random. Every spine is a real patent.
-        </p>
-        <div className="mt-7 max-w-[640px]">
-          <p className="mb-2 text-[14px] font-semibold">Search NSF awards and university patents in plain English.</p>
-          <Suspense>
-            <SearchBox autoFocus />
-          </Suspense>
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[14px] text-ink-3">
-            <span>Try</span>
-            {EXAMPLES.map((e) => (
-              <Link key={e} href={`/?q=${encodeURIComponent(e)}`} className="text-ink-2 hover:text-accent underline decoration-rule underline-offset-4">
-                {e}
-              </Link>
-            ))}
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <LensLink href="/?l=climate&o=readiness" label="Climate lens" n={stats.climate} />
-            <LensLink href="/?l=agtech&o=readiness" label="Ag tech lens" n={stats.agtech} />
-          </div>
+      <PipelineHero />
+
+      <section className="no-print mt-12 max-w-[760px]" aria-label="Search">
+        <p className="mb-2 text-[14px] font-semibold">Search NSF awards and university patents</p>
+        <Suspense>
+          <SearchBox size="md" />
+        </Suspense>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[14px] text-ink-3">
+          <span>Try</span>
+          {EXAMPLES.map((e) => (
+            <Link key={e} href={`/?q=${encodeURIComponent(e)}`} className="text-ink-2 hover:text-accent underline decoration-rule underline-offset-4">
+              {e}
+            </Link>
+          ))}
         </div>
-      </Shelf>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <LensLink href="/?l=climate&o=readiness" label="Climate lens" n={stats.climate} />
+          <LensLink href="/?l=agtech&o=readiness" label="Ag tech lens" n={stats.agtech} />
+        </div>
+      </section>
 
       <PioneerMap />
 
