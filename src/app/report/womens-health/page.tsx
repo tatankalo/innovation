@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SectionLabel } from "@/components/ui";
 import { BarList, Columns, FigureRow, usd } from "@/components/vw/Charts";
 import PrintButton from "@/components/vw/PrintButton";
+import WhThemeTable from "@/components/vw/WhThemeTable";
 import WomensHealthRecords from "@/components/vw/WomensHealthRecords";
 import { date, num } from "@/lib/format";
 import { uniLabel } from "@/lib/vw";
@@ -18,7 +19,7 @@ const COLOR = "var(--viz-health_bio)";
 export default async function WomensHealthPage() {
   const { data: r, refreshed_at } = await getWomensHealth();
   const T = r.totals;
-  const themes = WH_ORDER.map((k) => ({ ...WH_THEMES[k], ...(r.themes.find((t) => t.theme === k) ?? { research: 0, icorps: 0, sbir: 0, dollars: 0, patents: 0 }) }));
+  const themes = WH_ORDER.map((k) => ({ key: k, ...WH_THEMES[k], ...(r.themes.find((t) => t.theme === k) ?? { research: 0, icorps: 0, sbir: 0, dollars: 0, patents: 0 }) }));
   const g = r.groups;
   const uniAwards = Object.values(g).reduce((a, b) => a + b, 0);
   const r1 = g.R1 ?? 0;
@@ -56,35 +57,7 @@ export default async function WomensHealthPage() {
 
       <section className="mt-16 break-inside-avoid">
         <SectionLabel right="Awards and patents by theme">Where the work is</SectionLabel>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-[14px] border-collapse">
-            <thead>
-              <tr className="text-left text-[12px] uppercase tracking-[0.06em] text-ink-3 border-b border-rule">
-                <th className="py-2 pr-3 font-semibold">Theme</th>
-                <th className="py-2 px-2 font-semibold text-right">Research</th>
-                <th className="py-2 px-2 font-semibold text-right">I-Corps</th>
-                <th className="py-2 px-2 font-semibold text-right">SBIR/STTR</th>
-                <th className="py-2 px-2 font-semibold text-right">NSF $</th>
-                <th className="py-2 pl-2 font-semibold text-right">Patents</th>
-              </tr>
-            </thead>
-            <tbody>
-              {themes.map((t) => (
-                <tr key={t.label} className="border-b border-rule align-top">
-                  <td className="py-3 pr-3">
-                    <span className="font-semibold">{t.label}</span>
-                    <span className="block text-[12px] text-ink-3">{t.note}</span>
-                  </td>
-                  <td className="py-3 px-2 text-right tnum">{num(t.research)}</td>
-                  <td className="py-3 px-2 text-right tnum">{num(t.icorps)}</td>
-                  <td className="py-3 px-2 text-right tnum">{num(t.sbir)}</td>
-                  <td className="py-3 px-2 text-right tnum">{usd(t.dollars)}</td>
-                  <td className="py-3 pl-2 text-right tnum">{num(t.patents)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <WhThemeTable rows={themes} awards={r.awards} patents={r.patents} people={r.people} />
       </section>
 
       <section className="mt-16 grid md:grid-cols-2 gap-x-14 gap-y-14 break-inside-avoid">
