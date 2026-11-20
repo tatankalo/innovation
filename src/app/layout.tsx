@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Newsreader, Open_Sans, JetBrains_Mono } from "next/font/google";
+import ReportsMenu from "@/components/ReportsMenu";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
@@ -29,14 +30,14 @@ export default function RootLayout({ children, modal }: { children: React.ReactN
               <span className="text-[22px] font-extrabold tracking-[-0.01em]">Unshelved<span className="text-[#f2a36f]">.</span></span>
               <span className="hidden sm:inline lg:hidden 2xl:inline whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.08em] text-band-ink-2">Tech discovery for VentureWell</span>
             </Link>
-            <nav className="flex items-center gap-5 whitespace-nowrap text-[14px] font-semibold text-band-ink-2">
+            <nav className="flex items-center gap-3 sm:gap-5 whitespace-nowrap text-[14px] font-semibold text-band-ink-2">
               <Link href="/?t=patent" className="hover:text-band-ink hidden xl:inline">Patents</Link>
               <Link href="/?t=research,icorps,iucrc,sbir,sttr" className="hover:text-band-ink hidden xl:inline">NSF awards</Link>
               <Link href="/landscape" className="hover:text-band-ink hidden sm:inline">Landscape</Link>
               <Link href="/centers" className="hover:text-band-ink hidden lg:inline">IUCRC centers</Link>
               <Link href="/universities" className="hover:text-band-ink hidden lg:inline">Universities</Link>
-              <Link href="/pipeline" className="hover:text-band-ink hidden md:inline">Pipeline</Link>
-              <Link href="/venturewell" className="h-8 px-3 inline-flex items-center rounded-[2px] bg-[#d47a42] text-white hover:bg-[#c0621f]">For VentureWell</Link>
+              <ReportsMenu />
+              <Link href="/venturewell" className="h-8 px-2.5 sm:px-3 inline-flex items-center rounded-[2px] bg-[#d47a42] text-white hover:bg-[#c0621f]"><span className="hidden sm:inline">For&nbsp;</span>VentureWell</Link>
               <ThemeToggle />
             </nav>
           </div>
