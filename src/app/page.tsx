@@ -9,6 +9,7 @@ import { awardSnippets, rpc } from "@/lib/supabase";
 import { PaperList, type Paper } from "@/components/Publications";
 import { searchArgs } from "@/lib/searchParams";
 import { getReport } from "@/lib/vw";
+import { getWomensHealth } from "@/lib/womens-health";
 import { cleanTitle, date, decode, LENSES, money, num } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -81,13 +82,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 }
 
 async function Landing() {
-  const [stats, features, { data: climate }, { data: ag }, { data: health }, { data: ocean }] = await Promise.all([
+  const [stats, features, { data: climate }, { data: ag }, { data: health }, { data: ocean }, { data: wh }] = await Promise.all([
     rpc<Stats>("site_stats"),
     rpc<Feature[]>("featured_lineage", { n: 3 }, { cache: false }),
     getReport("climate"),
     getReport("agtech"),
     getReport("health"),
     getReport("ocean"),
+    getWomensHealth(),
   ]);
   const figures = [
     { n: num(stats.families), label: "patented inventions", sub: "One per patent family" },
@@ -131,6 +133,7 @@ async function Landing() {
             { href: "/report/agtech", k: "Ag tech funder brief", n: ag.totals.ready, d: `${money(ag.totals.dollars)} in NSF awards · ${num(ag.totals.patents)} patents` },
             { href: "/report/health", k: "Health funder brief", n: health.totals.ready, d: `${money(health.totals.dollars)} in NSF awards · ${num(health.totals.awards)} awards` },
             { href: "/report/ocean", k: "Ocean funder brief", n: ocean.totals.ready, d: `${money(ocean.totals.dollars)} in NSF awards · ${num(ocean.totals.awards)} awards` },
+            { href: "/report/womens-health", k: "Women's health landscape", n: wh.totals.inventors_no_icorps, d: `${money(wh.totals.dollars)} in NSF awards · ${num(wh.totals.patents)} patents` },
           ].map((r) => (
             <li key={r.href} className="border-b border-rule">
               <Link href={r.href} className="group grid grid-cols-[1fr_auto] gap-x-6 py-5 items-baseline">
